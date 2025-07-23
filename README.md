@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # School Management System - Setup Complete! 🎉
 
 ## 🚀 **Application URLs**
@@ -178,3 +179,7 @@ Both servers are running and the complete authentication system is working. You 
 5. **Build** upon this foundation
 
 The admin user is automatically created in the SQLite database on first run, so no manual database setup is required!
+=======
+# SchoolApp
+School Management App for managing Multiple Schools with Multiple sub-branches of schools
+>>>>>>> c0c7dda87ef88cdc0083b079d3963a8b62cf6bee
