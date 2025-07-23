@@ -1,0 +1,25 @@
+# Ignore node_modules in client
+/client/node_modules/
+/client/dist/
+/client/out-tsc/
+
+# Angular build outputs
+/client/build/
+/client/.angular/
+
+# Ignore backend build outputs (for .NET WebAPI)
+# Ignore the build folders and binaries
+/api/bin/
+/api/obj/
+/api/*.user
+/api/*.suo
+
+# Ignore Visual Studio / Rider / IDE files (optional)
+/*.user
+/*.suo
+/*.userosscache
+/*.sln.docstates
+
+# Ignore OS files (optional)
+.DS_Store
+Thumbs.db

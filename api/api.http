@@ -1,0 +1,34 @@
+@api_HostAddress = http://localhost:5021
+
+### Login with admin credentials
+POST {{api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### Test login with wrong credentials
+POST {{api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "wrongpassword"
+}
+
+### Test protected endpoint (requires Bearer token from login response)
+GET {{api_HostAddress}}/api/test
+Authorization: Bearer {{token}}
+
+### Validate token (requires Bearer token from login response)
+GET {{api_HostAddress}}/api/auth/validate
+Authorization: Bearer {{token}}
+
+### Test admin-only endpoint
+GET {{api_HostAddress}}/api/test/admin
+Authorization: Bearer {{token}}
+
+### Variables (copy token from login response)
+@token = your_jwt_token_here
