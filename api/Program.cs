@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.IdentityModel.Tokens.Jwt;
 using api.Data;
 using api.Services;
 
@@ -78,5 +79,78 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Debug endpoints
+app.MapGet("/api/debug/test", () => new { message = "API is working", timestamp = DateTime.UtcNow });
+
+app.MapGet("/api/debug/users", async (ApplicationDbContext context) => 
+{
+    var users = await context.Users.Select(u => new { u.Username, u.Role }).ToListAsync();
+    var branches = await context.Branches.Select(b => new { b.BranchName, b.SchoolHeadUsername, b.Location }).ToListAsync();
+    
+    return new { 
+        users = users,
+        branches = branches,
+        message = "Debug info for users and branches"
+    };
+});
+
+app.MapGet("/api/debug/auth", (HttpContext context) => 
+{
+    var hasAuthHeader = context.Request.Headers.ContainsKey("Authorization");
+    var authHeader = context.Request.Headers["Authorization"].ToString();
+    var userClaims = context.User?.Claims?.Select(c => new { c.Type, c.Value }).ToList();
+    
+    return new { 
+        hasAuthorizationHeader = hasAuthHeader,
+        authorizationHeader = authHeader.Length > 50 ? authHeader.Substring(0, 50) + "..." : authHeader,
+        isAuthenticated = context.User?.Identity?.IsAuthenticated ?? false,
+        userName = context.User?.Identity?.Name,
+        claims = userClaims
+    };
+});
+
+app.MapGet("/api/debug/decode-token", (HttpContext context) => 
+{
+    var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+    if (authHeader == null || !authHeader.StartsWith("Bearer "))
+    {
+        return Results.Json(new { error = "No valid Bearer token found" });
+    }
+    
+    var token = authHeader.Substring("Bearer ".Length).Trim();
+    
+    try 
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jsonToken = handler.ReadJwtToken(token);
+        var claims = jsonToken.Claims.Select(c => new { c.Type, c.Value }).ToList();
+        
+        return Results.Json(new { 
+            success = true,
+            claims = claims,
+            expiry = jsonToken.ValidTo
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.Json(new { error = ex.Message });
+    }
+});
+
+app.MapGet("/api/debug/auth-test", (HttpContext context) => 
+{
+    var hasAuthHeader = context.Request.Headers.ContainsKey("Authorization");
+    var authHeader = context.Request.Headers["Authorization"].ToString();
+    var userClaims = context.User?.Claims?.Select(c => new { c.Type, c.Value }).ToList();
+    
+    return new { 
+        hasAuthorizationHeader = hasAuthHeader,
+        authorizationHeader = authHeader,
+        isAuthenticated = context.User?.Identity?.IsAuthenticated ?? false,
+        userName = context.User?.Identity?.Name,
+        claims = userClaims
+    };
+}).RequireAuthorization();
 
 app.Run();

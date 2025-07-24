@@ -16,7 +16,7 @@ namespace api.Models
         
         [Required]
         [MaxLength(20)]
-        public string Role { get; set; } = "Admin";
+        public string Role { get; set; } = "Admin"; // Admin, SchoolOwner, SchoolHead
         
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
