@@ -35,7 +35,7 @@ namespace api.Controllers
                 
             Console.WriteLine($"AuthController - Admin lookup result: {(adminUser != null ? $"Found admin user {adminUser.Username}" : "No admin user found")}");
                 
-            if (adminUser != null && BCrypt.Net.BCrypt.Verify(request.Password, adminUser.PasswordHash))
+            if (adminUser != null && adminUser.IsActive && BCrypt.Net.BCrypt.Verify(request.Password, adminUser.PasswordHash))
             {
                 Console.WriteLine($"AuthController - Password verified for admin {adminUser.Username}");
                 var adminToken = _jwtService.GenerateToken(adminUser.Id, adminUser.Username, adminUser.Role);
@@ -50,6 +50,12 @@ namespace api.Controllers
                 });
             }
             
+            // Check if admin user exists but is inactive
+            if (adminUser != null && !adminUser.IsActive)
+            {
+                return Unauthorized("Your account has been deactivated. Please contact an administrator.");
+            }
+            
             // Then, try to find school owner
             Console.WriteLine($"AuthController - Looking for school owner: {request.Username}");
             var schoolOwnerUser = await _context.Users
@@ -57,7 +63,7 @@ namespace api.Controllers
                 
             Console.WriteLine($"AuthController - School owner lookup result: {(schoolOwnerUser != null ? $"Found school owner {schoolOwnerUser.Username}" : "No school owner found")}");
                 
-            if (schoolOwnerUser != null && BCrypt.Net.BCrypt.Verify(request.Password, schoolOwnerUser.PasswordHash))
+            if (schoolOwnerUser != null && schoolOwnerUser.IsActive && BCrypt.Net.BCrypt.Verify(request.Password, schoolOwnerUser.PasswordHash))
             {
                 Console.WriteLine($"AuthController - Password verified for school owner {schoolOwnerUser.Username}");
                 
@@ -84,6 +90,12 @@ namespace api.Controllers
                 }
             }
             
+            // Check if school owner exists but is inactive
+            if (schoolOwnerUser != null && !schoolOwnerUser.IsActive)
+            {
+                return Unauthorized("Your account has been deactivated. Please contact an administrator.");
+            }
+            
             // Finally, try to find school head
             Console.WriteLine($"AuthController - Looking for school head with username: {request.Username}");
             var schoolHead = await _context.Users
@@ -91,7 +103,7 @@ namespace api.Controllers
                 
             Console.WriteLine($"AuthController - School head lookup result: {(schoolHead != null ? $"Found user {schoolHead.Username} with role {schoolHead.Role}" : "No school head found")}");
                 
-            if (schoolHead != null && BCrypt.Net.BCrypt.Verify(request.Password, schoolHead.PasswordHash))
+            if (schoolHead != null && schoolHead.IsActive && BCrypt.Net.BCrypt.Verify(request.Password, schoolHead.PasswordHash))
             {
                 Console.WriteLine($"AuthController - School head found: {schoolHead.Username} (ID: {schoolHead.Id})");
                 
@@ -124,6 +136,12 @@ namespace api.Controllers
                         BranchName = branch.BranchName
                     });
                 }
+            }
+            
+            // Check if school head exists but is inactive
+            if (schoolHead != null && !schoolHead.IsActive)
+            {
+                return Unauthorized("Your account has been deactivated. Please contact an administrator.");
             }
             
             return Unauthorized("Invalid username or password");

@@ -1,0 +1,6 @@
+C:\Users\HARRISMAIZAN\Desktop\SchoolApp\obj\Debug\net9.0\UpdateDatabase.csproj.AssemblyReference.cache
+C:\Users\HARRISMAIZAN\Desktop\SchoolApp\obj\Debug\net9.0\UpdateDatabase.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\HARRISMAIZAN\Desktop\SchoolApp\obj\Debug\net9.0\UpdateDatabase.AssemblyInfoInputs.cache
+C:\Users\HARRISMAIZAN\Desktop\SchoolApp\obj\Debug\net9.0\UpdateDatabase.AssemblyInfo.cs
+C:\Users\HARRISMAIZAN\Desktop\SchoolApp\obj\Debug\net9.0\UpdateDatabase.csproj.CoreCompileInputs.cache
+C:\Users\HARRISMAIZAN\Desktop\SchoolApp\obj\Debug\net9.0\UpdateDatabase.sourcelink.json

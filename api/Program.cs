@@ -5,6 +5,7 @@ using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using api.Data;
 using api.Services;
+using api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,11 +77,69 @@ app.UseHttpsRedirection();
 app.UseCors("AllowAngular");
 
 app.UseAuthentication();
+app.UseMiddleware<UserActiveMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();
 
 // Debug endpoints
+app.MapGet("/api/debug/add-isactive-column", async (ApplicationDbContext context) => 
+{
+    try 
+    {
+        // Check if column exists
+        var checkQuery = @"PRAGMA table_info(Users);";
+        var connection = context.Database.GetDbConnection();
+        await connection.OpenAsync();
+        
+        using var checkCommand = connection.CreateCommand();
+        checkCommand.CommandText = checkQuery;
+        
+        bool hasIsActiveColumn = false;
+        using (var reader = await checkCommand.ExecuteReaderAsync())
+        {
+            while (await reader.ReadAsync())
+            {
+                var columnName = reader["name"].ToString();
+                if (columnName == "IsActive")
+                {
+                    hasIsActiveColumn = true;
+                    break;
+                }
+            }
+        }
+        
+        if (!hasIsActiveColumn)
+        {
+            // Add the IsActive column
+            using var alterCommand = connection.CreateCommand();
+            alterCommand.CommandText = "ALTER TABLE Users ADD COLUMN IsActive INTEGER NOT NULL DEFAULT 1;";
+            await alterCommand.ExecuteNonQueryAsync();
+            
+            // Mark migrations as applied
+            using var insertCommand = connection.CreateCommand();
+            insertCommand.CommandText = @"
+            INSERT OR IGNORE INTO __EFMigrationsHistory (MigrationId, ProductVersion) VALUES 
+            ('20250723071234_AddSchoolsTable', '9.0.0'),
+            ('20250723075106_AddSchoolSettings', '9.0.0'), 
+            ('20250723081435_UpdateSchoolSettingsConstraints', '9.0.0'),
+            ('20250723095215_AddBranchesAndCoursesSimplified', '9.0.0'),
+            ('20250725073326_AddIsActiveToUsers', '9.0.0');";
+            await insertCommand.ExecuteNonQueryAsync();
+            
+            return new { success = true, message = "IsActive column added successfully" };
+        }
+        else
+        {
+            return new { success = true, message = "IsActive column already exists" };
+        }
+    }
+    catch (Exception ex)
+    {
+        return new { success = false, message = ex.Message };
+    }
+});
+
 app.MapGet("/api/debug/test", () => new { message = "API is working", timestamp = DateTime.UtcNow });
 
 app.MapGet("/api/debug/users", async (ApplicationDbContext context) => 
