@@ -19,9 +19,6 @@ namespace api.Services
             // Ensure database is created
             await _context.Database.EnsureCreatedAsync();
             
-            // Update existing users to have IsActive = true if not set
-            await UpdateExistingUsersIsActive();
-            
             // Check if admin user already exists
             var adminUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == "admin");
             
@@ -32,7 +29,6 @@ namespace api.Services
                     Username = "admin",
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
                     Role = "Admin",
-                    IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 };
                 
@@ -54,7 +50,6 @@ namespace api.Services
                     Username = "owner1",
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword("owner123"),
                     Role = "SchoolOwner",
-                    IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 };
                 
@@ -104,7 +99,6 @@ namespace api.Services
                         Username = school.OwnerUsername,
                         PasswordHash = school.OwnerPasswordHash,
                         Role = "SchoolOwner",
-                        IsActive = true,
                         CreatedAt = school.CreatedAt
                     };
 
@@ -113,24 +107,6 @@ namespace api.Services
             }
 
             await _context.SaveChangesAsync();
-        }
-        
-        private async Task UpdateExistingUsersIsActive()
-        {
-            // Update all existing users to have IsActive = true
-            var usersToUpdate = await _context.Users
-                .Where(u => !u.IsActive) // This will also catch users where IsActive is null/false
-                .ToListAsync();
-                
-            foreach (var user in usersToUpdate)
-            {
-                user.IsActive = true;
-            }
-            
-            if (usersToUpdate.Any())
-            {
-                await _context.SaveChangesAsync();
-            }
         }
 
         private async Task SeedDemoBranchesAndHeads(int schoolId)

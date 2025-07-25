@@ -56,7 +56,7 @@ namespace api.Migrations
 
                     b.HasIndex("SchoolId");
 
-                    b.ToTable("Branches", (string)null);
+                    b.ToTable("Branches");
                 });
 
             modelBuilder.Entity("api.Models.Course", b =>
@@ -100,7 +100,7 @@ namespace api.Migrations
 
                     b.HasIndex("BranchId");
 
-                    b.ToTable("Courses", (string)null);
+                    b.ToTable("Courses");
                 });
 
             modelBuilder.Entity("api.Models.CourseLesson", b =>
@@ -140,7 +140,7 @@ namespace api.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("CourseLessons", (string)null);
+                    b.ToTable("CourseLessons");
                 });
 
             modelBuilder.Entity("api.Models.School", b =>
@@ -199,7 +199,7 @@ namespace api.Migrations
                     b.HasIndex("OwnerUsername")
                         .IsUnique();
 
-                    b.ToTable("Schools", (string)null);
+                    b.ToTable("Schools");
                 });
 
             modelBuilder.Entity("api.Models.SchoolSettings", b =>
@@ -238,7 +238,7 @@ namespace api.Migrations
 
                     b.HasIndex("SchoolId");
 
-                    b.ToTable("SchoolSettings", (string)null);
+                    b.ToTable("SchoolSettings");
                 });
 
             modelBuilder.Entity("api.Models.User", b =>
@@ -249,9 +249,6 @@ namespace api.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("INTEGER");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -272,7 +269,7 @@ namespace api.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("api.Models.Branch", b =>
