@@ -31,7 +31,7 @@ namespace api.Controllers
             // First, try to find admin user only
             Console.WriteLine($"AuthController - Looking for user: {request.Username}");
             var adminUser = await _context.Users
-                .FirstOrDefaultAsync(u => u.Username == request.Username && u.Role == "Admin");
+                .FirstOrDefaultAsync(u => u.Username == request.Username && u.Role == "Admin" && u.IsActive);
                 
             Console.WriteLine($"AuthController - Admin lookup result: {(adminUser != null ? $"Found admin user {adminUser.Username}" : "No admin user found")}");
                 
@@ -53,7 +53,7 @@ namespace api.Controllers
             // Then, try to find school owner
             Console.WriteLine($"AuthController - Looking for school owner: {request.Username}");
             var schoolOwnerUser = await _context.Users
-                .FirstOrDefaultAsync(u => u.Username == request.Username && u.Role == "SchoolOwner");
+                .FirstOrDefaultAsync(u => u.Username == request.Username && u.Role == "SchoolOwner" && u.IsActive);
                 
             Console.WriteLine($"AuthController - School owner lookup result: {(schoolOwnerUser != null ? $"Found school owner {schoolOwnerUser.Username}" : "No school owner found")}");
                 
@@ -87,7 +87,7 @@ namespace api.Controllers
             // Finally, try to find school head
             Console.WriteLine($"AuthController - Looking for school head with username: {request.Username}");
             var schoolHead = await _context.Users
-                .FirstOrDefaultAsync(u => u.Username == request.Username && u.Role == "SchoolHead");
+                .FirstOrDefaultAsync(u => u.Username == request.Username && u.Role == "SchoolHead" && u.IsActive);
                 
             Console.WriteLine($"AuthController - School head lookup result: {(schoolHead != null ? $"Found user {schoolHead.Username} with role {schoolHead.Role}" : "No school head found")}");
                 

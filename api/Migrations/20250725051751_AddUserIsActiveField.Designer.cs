@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using api.Data;
 
@@ -10,9 +11,11 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250725051751_AddUserIsActiveField")]
+    partial class AddUserIsActiveField
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -56,7 +59,7 @@ namespace api.Migrations
 
                     b.HasIndex("SchoolId");
 
-                    b.ToTable("Branches", (string)null);
+                    b.ToTable("Branches");
                 });
 
             modelBuilder.Entity("api.Models.Course", b =>
@@ -100,7 +103,7 @@ namespace api.Migrations
 
                     b.HasIndex("BranchId");
 
-                    b.ToTable("Courses", (string)null);
+                    b.ToTable("Courses");
                 });
 
             modelBuilder.Entity("api.Models.CourseLesson", b =>
@@ -140,7 +143,7 @@ namespace api.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("CourseLessons", (string)null);
+                    b.ToTable("CourseLessons");
                 });
 
             modelBuilder.Entity("api.Models.School", b =>
@@ -199,7 +202,7 @@ namespace api.Migrations
                     b.HasIndex("OwnerUsername")
                         .IsUnique();
 
-                    b.ToTable("Schools", (string)null);
+                    b.ToTable("Schools");
                 });
 
             modelBuilder.Entity("api.Models.SchoolSettings", b =>
@@ -238,7 +241,7 @@ namespace api.Migrations
 
                     b.HasIndex("SchoolId");
 
-                    b.ToTable("SchoolSettings", (string)null);
+                    b.ToTable("SchoolSettings");
                 });
 
             modelBuilder.Entity("api.Models.User", b =>
@@ -272,7 +275,7 @@ namespace api.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("api.Models.Branch", b =>
