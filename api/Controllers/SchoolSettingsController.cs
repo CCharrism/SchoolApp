@@ -10,7 +10,7 @@ namespace api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "SchoolOwner,SchoolHead")]
+    [Authorize(Roles = "Admin,SchoolOwner,SchoolHead")]
     public class SchoolSettingsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -21,22 +21,39 @@ namespace api.Controllers
         }
         
         [HttpGet]
-        public async Task<ActionResult<SchoolSettingsResponse>> GetSettings()
+        public async Task<ActionResult<SchoolSettingsResponse>> GetSettings([FromQuery] int? schoolId = null)
         {
-            // Get school ID from JWT token
-            var schoolIdClaim = User.FindFirst("school_id")?.Value;
-            if (!int.TryParse(schoolIdClaim, out int schoolId))
+            int targetSchoolId;
+            
+            // Check user role and determine school ID
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+            
+            if (userRole == "Admin")
             {
-                return Unauthorized("Invalid school owner");
+                // Admin must specify school ID in query parameter
+                if (!schoolId.HasValue)
+                {
+                    return BadRequest("Admin users must specify schoolId parameter");
+                }
+                targetSchoolId = schoolId.Value;
+            }
+            else
+            {
+                // SchoolOwner and SchoolHead get school ID from JWT token
+                var schoolIdClaim = User.FindFirst("school_id")?.Value;
+                if (!int.TryParse(schoolIdClaim, out targetSchoolId))
+                {
+                    return Unauthorized("Invalid school credentials");
+                }
             }
             
             var settings = await _context.SchoolSettings
-                .FirstOrDefaultAsync(s => s.SchoolId == schoolId);
+                .FirstOrDefaultAsync(s => s.SchoolId == targetSchoolId);
             
             if (settings == null)
             {
                 // Create default settings if none exist
-                var school = await _context.Schools.FindAsync(schoolId);
+                var school = await _context.Schools.FindAsync(targetSchoolId);
                 if (school == null)
                 {
                     return NotFound("School not found");
@@ -44,7 +61,7 @@ namespace api.Controllers
                 
                 settings = new SchoolSettings
                 {
-                    SchoolId = schoolId,
+                    SchoolId = targetSchoolId,
                     SchoolDisplayName = school.SchoolName,
                     LogoImageUrl = "",
                     NavigationType = "sidebar",
@@ -70,7 +87,7 @@ namespace api.Controllers
         }
         
         [HttpPut]
-        public async Task<ActionResult<SchoolSettingsResponse>> UpdateSettings([FromBody] SchoolSettingsRequest request)
+        public async Task<ActionResult<SchoolSettingsResponse>> UpdateSettings([FromBody] SchoolSettingsRequest request, [FromQuery] int? schoolId = null)
         {
             if (!ModelState.IsValid)
             {
@@ -87,27 +104,40 @@ namespace api.Controllers
                     errors = errors 
                 });
             }
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
             
-            // Get school ID from JWT token
-            var schoolIdClaim = User.FindFirst("school_id")?.Value;
-            if (!int.TryParse(schoolIdClaim, out int schoolId))
+            int targetSchoolId;
+            
+            // Check user role and determine school ID
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+            
+            if (userRole == "Admin")
             {
-                return Unauthorized("Invalid school owner");
+                // Admin must specify school ID in query parameter
+                if (!schoolId.HasValue)
+                {
+                    return BadRequest("Admin users must specify schoolId parameter");
+                }
+                targetSchoolId = schoolId.Value;
+            }
+            else
+            {
+                // SchoolOwner and SchoolHead get school ID from JWT token
+                var schoolIdClaim = User.FindFirst("school_id")?.Value;
+                if (!int.TryParse(schoolIdClaim, out targetSchoolId))
+                {
+                    return Unauthorized("Invalid school credentials");
+                }
             }
             
             var settings = await _context.SchoolSettings
-                .FirstOrDefaultAsync(s => s.SchoolId == schoolId);
+                .FirstOrDefaultAsync(s => s.SchoolId == targetSchoolId);
             
             if (settings == null)
             {
                 // Create new settings
                 settings = new SchoolSettings
                 {
-                    SchoolId = schoolId
+                    SchoolId = targetSchoolId
                 };
                 _context.SchoolSettings.Add(settings);
             }
@@ -120,7 +150,7 @@ namespace api.Controllers
             settings.UpdatedAt = DateTime.UtcNow;
             
             // Also update the school name in the Schools table
-            var school = await _context.Schools.FindAsync(schoolId);
+            var school = await _context.Schools.FindAsync(targetSchoolId);
             if (school != null && !string.IsNullOrEmpty(request.SchoolDisplayName))
             {
                 school.SchoolName = request.SchoolDisplayName;

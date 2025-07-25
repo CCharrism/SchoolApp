@@ -46,10 +46,10 @@ namespace api.Services
             }
             
             // Add school_id claim for SchoolOwner role
-            if (role == "SchoolOwner")
+            if (role == "SchoolOwner" && schoolId.HasValue)
             {
-                claims.Add(new Claim("school_id", userId.ToString()));
-                Console.WriteLine($"Added school_id claim for SchoolOwner: {userId}");
+                claims.Add(new Claim("school_id", schoolId.Value.ToString()));
+                Console.WriteLine($"Added school_id claim for SchoolOwner: {schoolId.Value}");
             }
             
             // Add branch_id and school_id claims for SchoolHead role

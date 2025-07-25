@@ -28,16 +28,16 @@ namespace api.Controllers
                 return BadRequest(ModelState);
             }
             
-            // First, try to find admin user (exclude SchoolHead users as they need special handling)
+            // First, try to find admin user only
             Console.WriteLine($"AuthController - Looking for user: {request.Username}");
             var adminUser = await _context.Users
-                .FirstOrDefaultAsync(u => u.Username == request.Username && u.Role != "SchoolHead");
+                .FirstOrDefaultAsync(u => u.Username == request.Username && u.Role == "Admin");
                 
-            Console.WriteLine($"AuthController - User lookup result: {(adminUser != null ? $"Found user {adminUser.Username} with role {adminUser.Role}" : "No admin user found")}");
+            Console.WriteLine($"AuthController - Admin lookup result: {(adminUser != null ? $"Found admin user {adminUser.Username}" : "No admin user found")}");
                 
             if (adminUser != null && BCrypt.Net.BCrypt.Verify(request.Password, adminUser.PasswordHash))
             {
-                Console.WriteLine($"AuthController - Password verified for {adminUser.Username}, returning admin/user token");
+                Console.WriteLine($"AuthController - Password verified for admin {adminUser.Username}");
                 var adminToken = _jwtService.GenerateToken(adminUser.Id, adminUser.Username, adminUser.Role);
                 var adminExpiry = _jwtService.GetTokenExpiry();
                 
@@ -51,22 +51,37 @@ namespace api.Controllers
             }
             
             // Then, try to find school owner
-            var school = await _context.Schools
-                .FirstOrDefaultAsync(s => s.OwnerUsername == request.Username && s.IsActive);
+            Console.WriteLine($"AuthController - Looking for school owner: {request.Username}");
+            var schoolOwnerUser = await _context.Users
+                .FirstOrDefaultAsync(u => u.Username == request.Username && u.Role == "SchoolOwner");
                 
-            if (school != null && BCrypt.Net.BCrypt.Verify(request.Password, school.OwnerPasswordHash))
+            Console.WriteLine($"AuthController - School owner lookup result: {(schoolOwnerUser != null ? $"Found school owner {schoolOwnerUser.Username}" : "No school owner found")}");
+                
+            if (schoolOwnerUser != null && BCrypt.Net.BCrypt.Verify(request.Password, schoolOwnerUser.PasswordHash))
             {
-                var ownerToken = _jwtService.GenerateToken(school.Id, school.OwnerUsername, "SchoolOwner", school.SchoolName);
-                var ownerExpiry = _jwtService.GetTokenExpiry();
+                Console.WriteLine($"AuthController - Password verified for school owner {schoolOwnerUser.Username}");
                 
-                return Ok(new LoginResponse
+                // Find the school associated with this owner
+                var school = await _context.Schools
+                    .FirstOrDefaultAsync(s => s.OwnerUsername == schoolOwnerUser.Username && s.IsActive);
+                    
+                Console.WriteLine($"AuthController - School lookup result: {(school != null ? $"Found school {school.SchoolName} (ID: {school.Id})" : "No school found")}");
+                    
+                if (school != null)
                 {
-                    Token = ownerToken,
-                    Username = school.OwnerUsername,
-                    Role = "SchoolOwner",
-                    ExpiresAt = ownerExpiry,
-                    SchoolName = school.SchoolName
-                });
+                    Console.WriteLine($"AuthController - Generating token for school owner with school_id: {school.Id}");
+                    var ownerToken = _jwtService.GenerateToken(schoolOwnerUser.Id, schoolOwnerUser.Username, "SchoolOwner", school.SchoolName, null, school.Id);
+                    var ownerExpiry = _jwtService.GetTokenExpiry();
+                    
+                    return Ok(new LoginResponse
+                    {
+                        Token = ownerToken,
+                        Username = schoolOwnerUser.Username,
+                        Role = "SchoolOwner",
+                        ExpiresAt = ownerExpiry,
+                        SchoolName = school.SchoolName
+                    });
+                }
             }
             
             // Finally, try to find school head

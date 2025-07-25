@@ -46,42 +46,67 @@ namespace api.Controllers
                 return Unauthorized("Invalid admin user");
             }
             
-            var school = new School
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            
+            try
             {
-                SchoolName = request.SchoolName,
-                OwnerName = request.OwnerName,
-                OwnerUsername = request.OwnerUsername,
-                OwnerPasswordHash = BCrypt.Net.BCrypt.HashPassword(request.OwnerPassword),
-                Address = request.Address,
-                Phone = request.Phone,
-                Email = request.Email,
-                CreatedByAdminId = adminId,
-                CreatedAt = DateTime.UtcNow
-            };
+                // Create school owner user
+                var schoolOwner = new User
+                {
+                    Username = request.OwnerUsername,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.OwnerPassword),
+                    Role = "SchoolOwner",
+                    CreatedAt = DateTime.UtcNow
+                };
+                
+                _context.Users.Add(schoolOwner);
+                await _context.SaveChangesAsync();
+                
+                // Create school
+                var school = new School
+                {
+                    SchoolName = request.SchoolName,
+                    OwnerName = request.OwnerName,
+                    OwnerUsername = request.OwnerUsername,
+                    OwnerPasswordHash = BCrypt.Net.BCrypt.HashPassword(request.OwnerPassword),
+                    Address = request.Address,
+                    Phone = request.Phone,
+                    Email = request.Email,
+                    CreatedByAdminId = adminId,
+                    CreatedAt = DateTime.UtcNow
+                };
+                
+                _context.Schools.Add(school);
+                await _context.SaveChangesAsync();
+                
+                await transaction.CommitAsync();
             
-            _context.Schools.Add(school);
-            await _context.SaveChangesAsync();
-            
-            // Load the created school with admin info
-            var createdSchool = await _context.Schools
-                .Include(s => s.CreatedByAdmin)
-                .FirstAsync(s => s.Id == school.Id);
-            
-            var response = new SchoolResponse
+                // Load the created school with admin info
+                var createdSchool = await _context.Schools
+                    .Include(s => s.CreatedByAdmin)
+                    .FirstAsync(s => s.Id == school.Id);
+                
+                var response = new SchoolResponse
+                {
+                    Id = createdSchool.Id,
+                    SchoolName = createdSchool.SchoolName,
+                    OwnerName = createdSchool.OwnerName,
+                    OwnerUsername = createdSchool.OwnerUsername,
+                    Address = createdSchool.Address,
+                    Phone = createdSchool.Phone,
+                    Email = createdSchool.Email,
+                    IsActive = createdSchool.IsActive,
+                    CreatedAt = createdSchool.CreatedAt,
+                    CreatedByAdmin = createdSchool.CreatedByAdmin.Username
+                };
+                
+                return CreatedAtAction(nameof(GetSchool), new { id = school.Id }, response);
+            }
+            catch
             {
-                Id = createdSchool.Id,
-                SchoolName = createdSchool.SchoolName,
-                OwnerName = createdSchool.OwnerName,
-                OwnerUsername = createdSchool.OwnerUsername,
-                Address = createdSchool.Address,
-                Phone = createdSchool.Phone,
-                Email = createdSchool.Email,
-                IsActive = createdSchool.IsActive,
-                CreatedAt = createdSchool.CreatedAt,
-                CreatedByAdmin = createdSchool.CreatedByAdmin.Username
-            };
-            
-            return CreatedAtAction(nameof(GetSchool), new { id = school.Id }, response);
+                await transaction.RollbackAsync();
+                return StatusCode(500, "An error occurred while creating the school");
+            }
         }
         
         [HttpGet]
