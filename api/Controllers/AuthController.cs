@@ -46,7 +46,14 @@ namespace api.Controllers
                     Token = adminToken,
                     Username = adminUser.Username,
                     Role = adminUser.Role,
-                    ExpiresAt = adminExpiry
+                    ExpiresAt = adminExpiry,
+                    User = new UserInfo
+                    {
+                        Id = adminUser.Id,
+                        Username = adminUser.Username,
+                        Role = adminUser.Role,
+                        FullName = "Administrator"
+                    }
                 });
             }
             
@@ -85,7 +92,15 @@ namespace api.Controllers
                         Username = schoolOwnerUser.Username,
                         Role = "SchoolOwner",
                         ExpiresAt = ownerExpiry,
-                        SchoolName = school.SchoolName
+                        SchoolName = school.SchoolName,
+                        User = new UserInfo
+                        {
+                            Id = schoolOwnerUser.Id,
+                            Username = schoolOwnerUser.Username,
+                            Role = "SchoolOwner",
+                            FullName = school.OwnerName,
+                            SchoolName = school.SchoolName
+                        }
                     });
                 }
             }
@@ -133,7 +148,15 @@ namespace api.Controllers
                         Role = "SchoolHead",
                         ExpiresAt = headExpiry,
                         SchoolName = branch.School.SchoolName,
-                        BranchName = branch.BranchName
+                        BranchName = branch.BranchName,
+                        User = new UserInfo
+                        {
+                            Id = schoolHead.Id,
+                            Username = schoolHead.Username,
+                            Role = "SchoolHead",
+                            FullName = "School Head",
+                            SchoolName = branch.School.SchoolName
+                        }
                     });
                 }
             }
@@ -142,6 +165,72 @@ namespace api.Controllers
             if (schoolHead != null && !schoolHead.IsActive)
             {
                 return Unauthorized("Your account has been deactivated. Please contact an administrator.");
+            }
+            
+            // Try to find teacher
+            Console.WriteLine($"AuthController - Looking for teacher with username: {request.Username}");
+            var teacher = await _context.Teachers
+                .Include(t => t.School)
+                .FirstOrDefaultAsync(t => t.Username == request.Username);
+                
+            Console.WriteLine($"AuthController - Teacher lookup result: {(teacher != null ? $"Found teacher {teacher.Username}" : "No teacher found")}");
+            
+            if (teacher != null && teacher.IsActive && !string.IsNullOrEmpty(teacher.PasswordHash) && BCrypt.Net.BCrypt.Verify(request.Password, teacher.PasswordHash))
+            {
+                Console.WriteLine($"AuthController - Teacher authentication successful for {teacher.Username}");
+                
+                var teacherToken = _jwtService.GenerateToken(teacher.Id, teacher.Username, "Teacher", teacher.School?.SchoolName ?? "Unknown School", null, teacher.SchoolId);
+                var teacherExpiry = _jwtService.GetTokenExpiry();
+                
+                return Ok(new LoginResponse
+                {
+                    Token = teacherToken,
+                    Username = teacher.Username,
+                    Role = "Teacher",
+                    ExpiresAt = teacherExpiry,
+                    SchoolName = teacher.School?.SchoolName ?? "Unknown School",
+                    User = new UserInfo
+                    {
+                        Id = teacher.Id,
+                        Username = teacher.Username,
+                        Role = "Teacher",
+                        FullName = teacher.FullName,
+                        SchoolName = teacher.School?.SchoolName ?? "Unknown School"
+                    }
+                });
+            }
+            
+            // Try to find student
+            Console.WriteLine($"AuthController - Looking for student with username: {request.Username}");
+            var student = await _context.Students
+                .Include(s => s.School)
+                .FirstOrDefaultAsync(s => s.Username == request.Username);
+                
+            Console.WriteLine($"AuthController - Student lookup result: {(student != null ? $"Found student {student.Username}" : "No student found")}");
+            
+            if (student != null && student.IsActive && !string.IsNullOrEmpty(student.PasswordHash) && BCrypt.Net.BCrypt.Verify(request.Password, student.PasswordHash))
+            {
+                Console.WriteLine($"AuthController - Student authentication successful for {student.Username}");
+                
+                var studentToken = _jwtService.GenerateToken(student.Id, student.Username, "Student", student.School?.SchoolName ?? "Unknown School", null, student.SchoolId);
+                var studentExpiry = _jwtService.GetTokenExpiry();
+                
+                return Ok(new LoginResponse
+                {
+                    Token = studentToken,
+                    Username = student.Username,
+                    Role = "Student",
+                    ExpiresAt = studentExpiry,
+                    SchoolName = student.School?.SchoolName ?? "Unknown School",
+                    User = new UserInfo
+                    {
+                        Id = student.Id,
+                        Username = student.Username,
+                        Role = "Student",
+                        FullName = student.FullName,
+                        SchoolName = student.School?.SchoolName ?? "Unknown School"
+                    }
+                });
             }
             
             return Unauthorized("Invalid username or password");

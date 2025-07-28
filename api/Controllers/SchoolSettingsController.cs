@@ -10,7 +10,7 @@ namespace api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin,SchoolOwner,SchoolHead")]
+    [Authorize] // Allow all authenticated users to access theme settings
     public class SchoolSettingsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -36,6 +36,38 @@ namespace api.Controllers
                     return BadRequest("Admin users must specify schoolId parameter");
                 }
                 targetSchoolId = schoolId.Value;
+            }
+            else if (userRole == "Teacher")
+            {
+                // Teachers get school ID from their teacher record
+                var userIdClaim = User.FindFirst("user_id")?.Value;
+                if (!int.TryParse(userIdClaim, out int teacherId))
+                {
+                    return Unauthorized("Invalid teacher credentials");
+                }
+                
+                var teacher = await _context.Teachers.FindAsync(teacherId);
+                if (teacher == null)
+                {
+                    return Unauthorized("Teacher not found");
+                }
+                targetSchoolId = teacher.SchoolId;
+            }
+            else if (userRole == "Student")
+            {
+                // Students get school ID from their student record
+                var userIdClaim = User.FindFirst("user_id")?.Value;
+                if (!int.TryParse(userIdClaim, out int studentId))
+                {
+                    return Unauthorized("Invalid student credentials");
+                }
+                
+                var student = await _context.Students.FindAsync(studentId);
+                if (student == null)
+                {
+                    return Unauthorized("Student not found");
+                }
+                targetSchoolId = student.SchoolId;
             }
             else
             {
@@ -87,6 +119,7 @@ namespace api.Controllers
         }
         
         [HttpPut]
+        [Authorize(Roles = "Admin,SchoolOwner,SchoolHead")] // Only these roles can modify settings
         public async Task<ActionResult<SchoolSettingsResponse>> UpdateSettings([FromBody] SchoolSettingsRequest request, [FromQuery] int? schoolId = null)
         {
             if (!ModelState.IsValid)

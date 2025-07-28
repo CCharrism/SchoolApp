@@ -34,8 +34,10 @@ namespace api.Services
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+                new Claim("user_id", userId.ToString()), // Add explicit user_id claim
                 new Claim(ClaimTypes.Name, username),
                 new Claim(ClaimTypes.Role, role),
+                new Claim("role", role), // Add explicit role claim
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
             };
@@ -45,23 +47,18 @@ namespace api.Services
                 claims.Add(new Claim("school_name", schoolName));
             }
             
-            // Add school_id claim for SchoolOwner role
-            if (role == "SchoolOwner" && schoolId.HasValue)
+            // Add school_id claim for all roles that have a school association
+            if (schoolId.HasValue)
             {
                 claims.Add(new Claim("school_id", schoolId.Value.ToString()));
-                Console.WriteLine($"Added school_id claim for SchoolOwner: {schoolId.Value}");
+                Console.WriteLine($"Added school_id claim for {role}: {schoolId.Value}");
             }
             
-            // Add branch_id and school_id claims for SchoolHead role
-            if (role == "SchoolHead" && branchId.HasValue && schoolId.HasValue)
+            // Add branch_id claim for SchoolHead role
+            if (role == "SchoolHead" && branchId.HasValue)
             {
                 claims.Add(new Claim("branch_id", branchId.Value.ToString()));
-                claims.Add(new Claim("school_id", schoolId.Value.ToString()));
-                Console.WriteLine($"Added claims for SchoolHead - school_id: {schoolId.Value}, branch_id: {branchId.Value}");
-            }
-            else if (role == "SchoolHead")
-            {
-                Console.WriteLine($"SchoolHead role detected but branchId or schoolId is null or missing: branchId={branchId}, schoolId={schoolId}");
+                Console.WriteLine($"Added branch_id claim for SchoolHead: {branchId.Value}");
             }
             
             var token = new JwtSecurityToken(

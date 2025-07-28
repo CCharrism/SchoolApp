@@ -79,6 +79,9 @@ namespace api.Services
 
             // Seed additional demo schools for better hierarchy visualization
             await SeedAdditionalDemoSchools(adminUser.Id);
+
+            // Seed teachers, students, and classrooms
+            await SeedTeachersStudentsAndClassrooms();
         }
 
         private async Task SeedMissingSchoolOwnerUsers()
@@ -287,6 +290,209 @@ namespace api.Services
                 _context.Courses.Add(course);
             }
 
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task SeedTeachersStudentsAndClassrooms()
+        {
+            // Check if teachers already exist
+            var existingTeachers = await _context.Teachers.AnyAsync();
+            if (existingTeachers) return;
+
+            // Get first school for demo data
+            var school = await _context.Schools.FirstOrDefaultAsync();
+            if (school == null) return;
+
+            // Create sample teachers
+            var teachers = new[]
+            {
+                new Teacher
+                {
+                    Username = "teacher",
+                    Email = "teacher@school.com",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("teacher123"),
+                    FullName = "Demo Teacher",
+                    Subject = "Mathematics",
+                    Qualification = "M.Sc. Mathematics",
+                    Phone = "555-0100",
+                    IsActive = true,
+                    SchoolId = school.Id,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new Teacher
+                {
+                    Username = "john.smith",
+                    Email = "john.smith@school.com",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("teacher123"),
+                    FullName = "John Smith",
+                    Subject = "Mathematics",
+                    Qualification = "M.Sc. Mathematics",
+                    Phone = "555-0101",
+                    IsActive = true,
+                    SchoolId = school.Id,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new Teacher
+                {
+                    Username = "sarah.johnson",
+                    Email = "sarah.johnson@school.com",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("teacher123"),
+                    FullName = "Sarah Johnson",
+                    Subject = "English",
+                    Qualification = "M.A. English Literature",
+                    Phone = "555-0102",
+                    IsActive = true,
+                    SchoolId = school.Id,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new Teacher
+                {
+                    Username = "michael.brown",
+                    Email = "michael.brown@school.com",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("teacher123"),
+                    FullName = "Michael Brown",
+                    Subject = "Science",
+                    Qualification = "Ph.D. Physics",
+                    Phone = "555-0103",
+                    IsActive = true,
+                    SchoolId = school.Id,
+                    CreatedAt = DateTime.UtcNow
+                }
+            };
+
+            _context.Teachers.AddRange(teachers);
+            await _context.SaveChangesAsync();
+
+            // Create sample students
+            var students = new[]
+            {
+                new Student
+                {
+                    Username = "student",
+                    Email = "student@school.com",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("student123"),
+                    FullName = "Demo Student",
+                    Grade = "Grade 10",
+                    RollNumber = "2024000",
+                    ParentName = "Demo Parent",
+                    ParentPhone = "555-1000",
+                    Phone = "555-2000",
+                    IsActive = true,
+                    SchoolId = school.Id,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new Student
+                {
+                    Username = "alice.wilson",
+                    Email = "alice.wilson@student.com",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("student123"),
+                    FullName = "Alice Wilson",
+                    Grade = "Grade 10",
+                    RollNumber = "2024001",
+                    ParentName = "Robert Wilson",
+                    ParentPhone = "555-1001",
+                    Phone = "555-2001",
+                    IsActive = true,
+                    SchoolId = school.Id,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new Student
+                {
+                    Username = "bob.davis",
+                    Email = "bob.davis@student.com",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("student123"),
+                    FullName = "Bob Davis",
+                    Grade = "Grade 10",
+                    RollNumber = "2024002",
+                    ParentName = "Jennifer Davis",
+                    ParentPhone = "555-1002",
+                    Phone = "555-2002",
+                    IsActive = true,
+                    SchoolId = school.Id,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new Student
+                {
+                    Username = "carol.miller",
+                    Email = "carol.miller@student.com",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("student123"),
+                    FullName = "Carol Miller",
+                    Grade = "Grade 9",
+                    RollNumber = "2024003",
+                    ParentName = "David Miller",
+                    ParentPhone = "555-1003",
+                    Phone = "555-2003",
+                    IsActive = true,
+                    SchoolId = school.Id,
+                    CreatedAt = DateTime.UtcNow
+                }
+            };
+
+            _context.Students.AddRange(students);
+            await _context.SaveChangesAsync();
+
+            // Create sample classrooms
+            var classrooms = new[]
+            {
+                new Classroom
+                {
+                    Name = "Grade 10 Mathematics",
+                    Description = "Mathematics classroom for Grade 10 students",
+                    Section = "Grade 10",
+                    Subject = "Mathematics",
+                    ClassCode = "MATH10A",
+                    TeacherId = teachers[0].Id, // John Smith
+                    SchoolId = school.Id,
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new Classroom
+                {
+                    Name = "Grade 9 Science",
+                    Description = "Science classroom for Grade 9 students",
+                    Section = "Grade 9",
+                    Subject = "Science",
+                    ClassCode = "SCI9A",
+                    TeacherId = teachers[2].Id, // Michael Brown
+                    SchoolId = school.Id,
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                }
+            };
+
+            _context.Classrooms.AddRange(classrooms);
+            await _context.SaveChangesAsync();
+
+            // Create sample classroom enrollments
+            var enrollments = new[]
+            {
+                // Enroll Alice Wilson (Grade 10) in Grade 10 Math Class
+                new ClassroomStudent
+                {
+                    ClassroomId = classrooms[0].Id,
+                    StudentId = students[0].Id, // Alice Wilson
+                    JoinedAt = DateTime.UtcNow,
+                    IsActive = true
+                },
+                // Enroll Bob Davis (Grade 10) in Grade 10 Math Class
+                new ClassroomStudent
+                {
+                    ClassroomId = classrooms[0].Id,
+                    StudentId = students[1].Id, // Bob Davis
+                    JoinedAt = DateTime.UtcNow,
+                    IsActive = true
+                },
+                // Enroll Carol Miller (Grade 9) in Grade 9 Science Class
+                new ClassroomStudent
+                {
+                    ClassroomId = classrooms[1].Id,
+                    StudentId = students[2].Id, // Carol Miller
+                    JoinedAt = DateTime.UtcNow,
+                    IsActive = true
+                }
+            };
+
+            _context.ClassroomStudents.AddRange(enrollments);
             await _context.SaveChangesAsync();
         }
     }

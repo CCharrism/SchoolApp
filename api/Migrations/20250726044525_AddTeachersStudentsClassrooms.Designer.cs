@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using api.Data;
 
@@ -10,82 +11,14 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250726044525_AddTeachersStudentsClassrooms")]
+    partial class AddTeachersStudentsClassrooms
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
-
-            modelBuilder.Entity("api.Models.Announcement", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ClassroomId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClassroomId");
-
-                    b.ToTable("Announcements");
-                });
-
-            modelBuilder.Entity("api.Models.Assignment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ClassroomId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("DueDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Points")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClassroomId");
-
-                    b.ToTable("Assignments");
-                });
 
             modelBuilder.Entity("api.Models.Branch", b =>
                 {
@@ -135,17 +68,15 @@ namespace api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("ClassCode")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Grade")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsActive")
@@ -153,63 +84,29 @@ namespace api.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.Property<int>("SchoolId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Section")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Subject")
                         .IsRequired()
-                        .HasMaxLength(20)
                         .HasColumnType("TEXT");
 
                     b.Property<int>("TeacherId")
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("Id");
+                    b.Property<string>("TeacherName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
-                    b.HasIndex("ClassCode")
-                        .IsUnique();
+                    b.HasKey("Id");
 
                     b.HasIndex("SchoolId");
 
                     b.HasIndex("TeacherId");
 
                     b.ToTable("Classrooms");
-                });
-
-            modelBuilder.Entity("api.Models.ClassroomStudent", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ClassroomId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("JoinedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("StudentId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StudentId");
-
-                    b.HasIndex("ClassroomId", "StudentId")
-                        .IsUnique();
-
-                    b.ToTable("ClassroomStudents");
                 });
 
             modelBuilder.Entity("api.Models.Course", b =>
@@ -426,10 +323,6 @@ namespace api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -458,43 +351,6 @@ namespace api.Migrations
                     b.ToTable("Students");
                 });
 
-            modelBuilder.Entity("api.Models.StudentAssignment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("AssignmentId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int?>("Grade")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("StudentId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("SubmissionText")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("SubmittedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("TeacherFeedback")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StudentId");
-
-                    b.HasIndex("AssignmentId", "StudentId")
-                        .IsUnique();
-
-                    b.ToTable("StudentAssignments");
-                });
-
             modelBuilder.Entity("api.Models.Teacher", b =>
                 {
                     b.Property<int>("Id")
@@ -514,10 +370,6 @@ namespace api.Migrations
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
 
                     b.Property<string>("Phone")
                         .IsRequired()
@@ -585,28 +437,6 @@ namespace api.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("api.Models.Announcement", b =>
-                {
-                    b.HasOne("api.Models.Classroom", "Classroom")
-                        .WithMany("Announcements")
-                        .HasForeignKey("ClassroomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Classroom");
-                });
-
-            modelBuilder.Entity("api.Models.Assignment", b =>
-                {
-                    b.HasOne("api.Models.Classroom", "Classroom")
-                        .WithMany("Assignments")
-                        .HasForeignKey("ClassroomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Classroom");
-                });
-
             modelBuilder.Entity("api.Models.Branch", b =>
                 {
                     b.HasOne("api.Models.School", "School")
@@ -629,31 +459,12 @@ namespace api.Migrations
                     b.HasOne("api.Models.Teacher", "Teacher")
                         .WithMany()
                         .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
                     b.Navigation("School");
 
                     b.Navigation("Teacher");
-                });
-
-            modelBuilder.Entity("api.Models.ClassroomStudent", b =>
-                {
-                    b.HasOne("api.Models.Classroom", "Classroom")
-                        .WithMany("ClassroomStudents")
-                        .HasForeignKey("ClassroomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("api.Models.Student", "Student")
-                        .WithMany()
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Classroom");
-
-                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("api.Models.Course", b =>
@@ -711,25 +522,6 @@ namespace api.Migrations
                     b.Navigation("School");
                 });
 
-            modelBuilder.Entity("api.Models.StudentAssignment", b =>
-                {
-                    b.HasOne("api.Models.Assignment", "Assignment")
-                        .WithMany("StudentAssignments")
-                        .HasForeignKey("AssignmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("api.Models.Student", "Student")
-                        .WithMany()
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Assignment");
-
-                    b.Navigation("Student");
-                });
-
             modelBuilder.Entity("api.Models.Teacher", b =>
                 {
                     b.HasOne("api.Models.School", "School")
@@ -741,23 +533,9 @@ namespace api.Migrations
                     b.Navigation("School");
                 });
 
-            modelBuilder.Entity("api.Models.Assignment", b =>
-                {
-                    b.Navigation("StudentAssignments");
-                });
-
             modelBuilder.Entity("api.Models.Branch", b =>
                 {
                     b.Navigation("Courses");
-                });
-
-            modelBuilder.Entity("api.Models.Classroom", b =>
-                {
-                    b.Navigation("Announcements");
-
-                    b.Navigation("Assignments");
-
-                    b.Navigation("ClassroomStudents");
                 });
 
             modelBuilder.Entity("api.Models.Course", b =>
