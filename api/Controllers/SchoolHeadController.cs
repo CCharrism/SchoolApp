@@ -5,6 +5,8 @@ using api.Models;
 using api.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using BCrypt.Net;
+using OfficeOpenXml;
 
 namespace api.Controllers
 {
@@ -286,6 +288,163 @@ namespace api.Controllers
             }).ToList();
 
             return response;
+        }
+
+        // POST: api/schoolhead/students/import-excel
+        [HttpPost("students/import-excel")]
+        public async Task<ActionResult<BulkImportResponse>> ImportStudentsFromExcel(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No file uploaded");
+            }
+
+            if (!Path.GetExtension(file.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
+            {
+                return BadRequest("Only Excel files (.xlsx) are supported");
+            }
+
+            var schoolIdClaim = User.FindFirst("school_id")?.Value;
+            if (string.IsNullOrEmpty(schoolIdClaim) || !int.TryParse(schoolIdClaim, out int schoolId))
+            {
+                return BadRequest("Unable to determine school context");
+            }
+
+            var results = new BulkImportResponse
+            {
+                SuccessCount = 0,
+                ErrorCount = 0,
+                Errors = new List<string>()
+            };
+
+            try
+            {
+                using var stream = file.OpenReadStream();
+                
+                // Try to create ExcelPackage - if license issue occurs, handle it gracefully
+                OfficeOpenXml.ExcelPackage package;
+                try
+                {
+                    package = new OfficeOpenXml.ExcelPackage(stream);
+                }
+                catch (InvalidOperationException ex) when (ex.Message.Contains("license"))
+                {
+                    // Try setting license and retry
+                    try 
+                    {
+                        OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                    }
+                    catch { }
+                    
+                    stream.Seek(0, SeekOrigin.Begin);
+                    package = new OfficeOpenXml.ExcelPackage(stream);
+                }
+                
+                using (package)
+                {
+                    if (package.Workbook.Worksheets.Count == 0)
+                {
+                    return BadRequest("Excel file contains no worksheets");
+                }
+                
+                var worksheet = package.Workbook.Worksheets[0];
+                
+                if (worksheet.Dimension == null)
+                {
+                    return BadRequest("Excel worksheet is empty");
+                }
+                
+                var rowCount = worksheet.Dimension.Rows;
+                
+                Console.WriteLine($"Processing Excel file with {rowCount} rows");
+                
+                if (rowCount < 2)
+                {
+                    return BadRequest("Excel file must contain at least a header row and one data row");
+                }
+                
+                for (int row = 2; row <= rowCount; row++) // Skip header row
+                {
+                    try
+                    {
+                        Console.WriteLine($"Processing row {row}");
+                        
+                        var fullName = worksheet.Cells[row, 1].Value?.ToString()?.Trim();
+                        var username = worksheet.Cells[row, 2].Value?.ToString()?.Trim();
+                        var email = worksheet.Cells[row, 3].Value?.ToString()?.Trim();
+                        var password = worksheet.Cells[row, 4].Value?.ToString()?.Trim();
+                        var phone = worksheet.Cells[row, 5].Value?.ToString()?.Trim();
+                        var grade = worksheet.Cells[row, 6].Value?.ToString()?.Trim();
+                        var rollNumber = worksheet.Cells[row, 7].Value?.ToString()?.Trim();
+                        var parentName = worksheet.Cells[row, 8].Value?.ToString()?.Trim();
+                        var parentPhone = worksheet.Cells[row, 9].Value?.ToString()?.Trim();
+
+                        Console.WriteLine($"Row {row} data: Name={fullName}, Username={username}, Email={email}");
+
+                        // Validate required fields
+                        if (string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(username) || 
+                            string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || 
+                            string.IsNullOrEmpty(grade) || string.IsNullOrEmpty(rollNumber))
+                        {
+                            results.Errors.Add($"Row {row}: Missing required fields (Full Name, Username, Email, Password, Grade, Roll Number)");
+                            results.ErrorCount++;
+                            Console.WriteLine($"Row {row} validation failed: missing required fields");
+                            continue;
+                        }
+
+                        // Check if username already exists
+                        var existingStudent = await _context.Students.FirstOrDefaultAsync(s => s.Username == username);
+                        if (existingStudent != null)
+                        {
+                            results.Errors.Add($"Row {row}: Username '{username}' already exists");
+                            results.ErrorCount++;
+                            continue;
+                        }
+
+                        // Create new student
+                        var student = new Student
+                        {
+                            FullName = fullName,
+                            Username = username,
+                            Email = email ?? "",
+                            Phone = phone ?? "",
+                            Grade = grade ?? "",
+                            RollNumber = rollNumber ?? "",
+                            ParentName = parentName ?? "",
+                            ParentPhone = parentPhone ?? "",
+                            PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
+                            SchoolId = schoolId,
+                            IsActive = true,
+                            CreatedAt = DateTime.UtcNow
+                        };
+
+                        _context.Students.Add(student);
+                        results.SuccessCount++;
+                        Console.WriteLine($"Row {row} processed successfully: {fullName} ({username})");
+                    }
+                    catch (Exception ex)
+                    {
+                        results.Errors.Add($"Row {row}: {ex.Message}");
+                        results.ErrorCount++;
+                        Console.WriteLine($"Row {row} error: {ex.Message}");
+                    }
+                }
+
+                if (results.SuccessCount > 0)
+                {
+                    await _context.SaveChangesAsync();
+                    Console.WriteLine($"Successfully saved {results.SuccessCount} students to database");
+                }
+
+                return Ok(results);
+            } // End of using block
+        }
+        catch (Exception ex)
+            {
+                Console.WriteLine($"Excel import error: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                return BadRequest($"Error processing Excel file: {ex.Message}");
+            }
         }
 
         private string GenerateClassCode()

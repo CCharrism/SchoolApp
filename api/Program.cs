@@ -6,6 +6,10 @@ using System.IdentityModel.Tokens.Jwt;
 using api.Data;
 using api.Services;
 using api.Middleware;
+using OfficeOpenXml;
+
+// Configure EPPlus license for non-commercial use
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
 var builder = WebApplication.CreateBuilder(args);
 

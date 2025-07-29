@@ -44,4 +44,11 @@ namespace api.DTOs
         public DateTime CreatedAt { get; set; }
         public string CreatedByAdmin { get; set; } = string.Empty;
     }
+
+    public class BulkImportResponse
+    {
+        public int SuccessCount { get; set; }
+        public int ErrorCount { get; set; }
+        public List<string> Errors { get; set; } = new List<string>();
+    }
 }
