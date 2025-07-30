@@ -233,6 +233,15 @@ namespace api.Controllers
                 });
             }
             
+            // Debug student authentication failure
+            if (student != null)
+            {
+                Console.WriteLine($"AuthController - Student auth failure debug:");
+                Console.WriteLine($"  IsActive: {student.IsActive}");
+                Console.WriteLine($"  PasswordHash not null/empty: {!string.IsNullOrEmpty(student.PasswordHash)}");
+                Console.WriteLine($"  Password verification: {BCrypt.Net.BCrypt.Verify(request.Password, student.PasswordHash)}");
+            }
+            
             return Unauthorized("Invalid username or password");
         }
         
@@ -240,6 +249,77 @@ namespace api.Controllers
         public IActionResult ValidateToken()
         {
             return Ok(new { message = "Token is valid", user = User.Identity?.Name });
+        }
+
+        [HttpPost("debug/create-bgss-user")]
+        public async Task<IActionResult> CreateBgssUser()
+        {
+            try
+            {
+                // Check if bgss user already exists
+                var existingStudent = await _context.Students.FirstOrDefaultAsync(s => s.Username == "bgss");
+                if (existingStudent != null)
+                {
+                    return Ok(new { message = "User bgss already exists" });
+                }
+
+                // Get the first school to assign the student to
+                var school = await _context.Schools.FirstOrDefaultAsync();
+                if (school == null)
+                {
+                    return BadRequest(new { error = "No school found to assign student" });
+                }
+
+                // Create new student
+                var newStudent = new Models.Student
+                {
+                    Username = "bgss",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"),
+                    FullName = "BGSS User",
+                    Email = "bgss@test.com",
+                    Grade = "10",
+                    RollNumber = "BGSS001",
+                    SchoolId = school.Id,
+                    ParentName = "BGSS Parent",
+                    ParentPhone = "1234567890",
+                    Phone = "0987654321",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                _context.Students.Add(newStudent);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "User bgss created successfully", studentId = newStudent.Id });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpPost("debug/update-bgss-password")]
+        public async Task<IActionResult> UpdateBgssPassword()
+        {
+            try
+            {
+                // Find the bgss user
+                var existingStudent = await _context.Students.FirstOrDefaultAsync(s => s.Username == "bgss");
+                if (existingStudent == null)
+                {
+                    return BadRequest(new { error = "User bgss not found" });
+                }
+
+                // Update the password hash
+                existingStudent.PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123");
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Password updated successfully for user bgss" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
     }
 }

@@ -321,7 +321,7 @@ namespace api.Controllers
             {
                 using var stream = file.OpenReadStream();
                 
-                // Try to create ExcelPackage - if license issue occurs, handle it gracefully
+                
                 OfficeOpenXml.ExcelPackage package;
                 try
                 {

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using api.Data;
 using api.Services;
 using api.Middleware;
@@ -16,9 +17,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddOpenApi();
 
-// Add Entity Framework with SQLite
+// Add Entity Framework with SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -27,6 +28,27 @@ var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException(
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                Console.WriteLine($"🔑 JWT - Token received: {context.Token?[..50] ?? "null"}...");
+                return Task.CompletedTask;
+            },
+            OnTokenValidated = context =>
+            {
+                Console.WriteLine("✅ JWT - Token validated successfully");
+                var claims = context.Principal?.Claims.Select(c => $"{c.Type}={c.Value}");
+                Console.WriteLine($"✅ JWT - Claims: {string.Join(", ", claims ?? new string[0])}");
+                return Task.CompletedTask;
+            },
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine($"❌ JWT - Authentication failed: {context.Exception.Message}");
+                return Task.CompletedTask;
+            }
+        };
+        
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -36,7 +58,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = jwtSettings["Issuer"],
             ValidAudience = jwtSettings["Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
-            ClockSkew = TimeSpan.Zero
+            ClockSkew = TimeSpan.Zero,
+            RoleClaimType = ClaimTypes.Role,
+            NameClaimType = ClaimTypes.Name
         };
     });
 
@@ -215,5 +239,51 @@ app.MapGet("/api/debug/auth-test", (HttpContext context) =>
         claims = userClaims
     };
 }).RequireAuthorization();
+
+app.MapPost("/api/debug/create-bgss-user", async (ApplicationDbContext context) => 
+{
+    try 
+    {
+        // Check if bgss user already exists
+        var existingStudent = await context.Students.FirstOrDefaultAsync(s => s.Username == "bgss");
+        if (existingStudent != null)
+        {
+            return Results.Json(new { success = true, message = "User bgss already exists", userId = existingStudent.Id });
+        }
+        
+        // Get first school
+        var school = await context.Schools.FirstOrDefaultAsync();
+        if (school == null)
+        {
+            return Results.Json(new { success = false, message = "No school found" });
+        }
+        
+        // Create bgss student
+        var newStudent = new api.Models.Student
+        {
+            Username = "bgss",
+            Email = "bgss@school.com",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"),
+            FullName = "BGSS Student",
+            Grade = "Grade 10",
+            RollNumber = "BGSS001",
+            ParentName = "BGSS Parent",
+            ParentPhone = "555-9999",
+            Phone = "555-8888",
+            IsActive = true,
+            SchoolId = school.Id,
+            CreatedAt = DateTime.UtcNow
+        };
+        
+        context.Students.Add(newStudent);
+        await context.SaveChangesAsync();
+        
+        return Results.Json(new { success = true, message = "User bgss created successfully", userId = newStudent.Id });
+    }
+    catch (Exception ex)
+    {
+        return Results.Json(new { success = false, message = ex.Message });
+    }
+});
 
 app.Run();

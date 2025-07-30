@@ -118,7 +118,7 @@ namespace api.Data
                 entity.HasOne(cs => cs.Student)
                       .WithMany()
                       .HasForeignKey(cs => cs.StudentId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.Restrict);
                       
                 // Ensure unique enrollment (one student per classroom)
                 entity.HasIndex(cs => new { cs.ClassroomId, cs.StudentId })
@@ -145,7 +145,7 @@ namespace api.Data
                 entity.HasOne(sa => sa.Student)
                       .WithMany()
                       .HasForeignKey(sa => sa.StudentId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.Restrict);
                       
                 // Ensure unique submission (one submission per student per assignment)
                 entity.HasIndex(sa => new { sa.AssignmentId, sa.StudentId })
