@@ -1,0 +1,729 @@
+<div class="admin-dashboard">
+  <!-- Top Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="#">
+      <i class="fas fa-graduation-cap fs-4"></i>
+      <span class="fs-5">School Management</span>
+    </a>
+
+    <div class="navbar-nav ms-auto">
+      <div class="nav-item dropdown">
+        <a
+          class="nav-link dropdown-toggle d-flex align-items-center gap-2 px-3 py-1 rounded-3 bg-white text-primary shadow-sm"
+          href="#"
+          id="navbarDropdown"
+          role="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+          style="backdrop-filter: blur(8px);"
+        >
+          <img
+            src="https://static.vecteezy.com/system/resources/thumbnails/009/636/683/small_2x/admin-3d-illustration-icon-png.png"
+            alt="Avatar"
+            class="rounded-circle border border-primary border-2"
+            width="36"
+            height="36"
+          />
+          <span class="fw-semibold text-primary">{{ currentUser?.username || 'Admin' }}</span>
+        </a>
+
+        <ul
+          class="dropdown-menu dropdown-menu-end shadow rounded-3 p-2"
+          style="min-width: 200px; backdrop-filter: blur(15px); background: rgba(255, 255, 255, 0.9);"
+          aria-labelledby="navbarDropdown"
+        >
+          <li>
+            <a
+              class="dropdown-item d-flex align-items-center gap-3 rounded-2 text-primary fw-semibold"
+              href="#"
+            >
+              <i class="fas fa-user fs-5"></i> Profile
+            </a>
+          </li>
+          <li>
+            <a
+              class="dropdown-item d-flex align-items-center gap-3 rounded-2 text-primary fw-semibold"
+              href="#"
+            >
+              <i class="fas fa-cog fs-5"></i> Settings
+            </a>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <a
+              class="dropdown-item d-flex align-items-center gap-3 rounded-2 text-danger fw-semibold"
+              href="#"
+              (click)="logout()"
+            >
+              <i class="fas fa-sign-out-alt fs-5"></i> Logout
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav class="col-md-3 col-lg-2 d-md-block sidebar bg-white shadow-sm"
+     style="border-left: 4px solid #0d6efd; border-radius: 0; min-height: 100vh;">
+  <div class="position-sticky pt-4 px-3">
+
+    <!-- User Info -->
+    <div class="text-center mb-4 p-3 border-bottom border-2"
+         style="border-color: #0d6efd;">
+      <img src="https://static.vecteezy.com/system/resources/thumbnails/009/636/683/small_2x/admin-3d-illustration-icon-png.png"
+           alt="Admin"
+           class="rounded-circle mb-2 border border-3 border-primary"
+           width="64" height="64" />
+      
+      <small class="text-muted text-uppercase" style="letter-spacing: 0.08em;">
+        {{ currentUser?.role || 'Administrator' }}
+      </small>
+    </div>
+
+    <!-- Navigation Menu -->
+    <ul class="nav flex-column">
+      <li class="nav-item mb-2">
+        <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 fw-semibold"
+           [class.active]="activeMenu === 'dashboard'"
+           (click)="activeMenu = 'dashboard'; $event.preventDefault()"
+           href="#"
+           style="
+             border-radius: 0;
+             color: #495057;
+             transition: background-color 0.3s, color 0.3s;
+           "
+           [ngStyle]="activeMenu === 'dashboard' ? {
+             'background-color': '#0d6efd',
+             'color': 'white'
+           } : {}"
+           onmouseover="this.style.backgroundColor=(!this.classList.contains('active')) ? '#e7f1ff' : '';"
+           onmouseout="this.style.backgroundColor=(!this.classList.contains('active')) ? 'transparent' : '';">
+          <i class="fas fa-tachometer-alt fs-5"></i>
+          Dashboard
+        </a>
+      </li>
+      <li class="nav-item mb-2">
+        <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 fw-semibold"
+           [class.active]="activeMenu === 'add-school'"
+           (click)="onMenuChange('add-school'); $event.preventDefault()"
+           href="#"
+           style="
+             border-radius: 0;
+             color: #495057;
+             transition: background-color 0.3s, color 0.3s;
+           "
+           [ngStyle]="activeMenu === 'add-school' ? {
+             'background-color': '#0d6efd',
+             'color': 'white'
+           } : {}"
+           onmouseover="this.style.backgroundColor=(!this.classList.contains('active')) ? '#e7f1ff' : '';"
+           onmouseout="this.style.backgroundColor=(!this.classList.contains('active')) ? 'transparent' : '';">
+          <i class="fas fa-plus-circle fs-5"></i>
+          Add School
+        </a>
+      </li>
+      <li class="nav-item mb-2">
+        <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 fw-semibold"
+           [class.active]="activeMenu === 'schools'"
+           (click)="activeMenu = 'schools'; $event.preventDefault()"
+           href="#"
+           style="
+             border-radius: 0;
+             color: #495057;
+             transition: background-color 0.3s, color 0.3s;
+           "
+           [ngStyle]="activeMenu === 'schools' ? {
+             'background-color': '#0d6efd',
+             'color': 'white'
+           } : {}"
+           onmouseover="this.style.backgroundColor=(!this.classList.contains('active')) ? '#e7f1ff' : '';"
+           onmouseout="this.style.backgroundColor=(!this.classList.contains('active')) ? 'transparent' : '';">
+          <i class="fas fa-school fs-5"></i>
+          Manage Schools
+        </a>
+      </li>
+      <li class="nav-item mb-2">
+        <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 fw-semibold"
+           [class.active]="activeMenu === 'reports'"
+           (click)="activeMenu = 'reports'; $event.preventDefault()"
+           href="#"
+           style="
+             border-radius: 0;
+             color: #495057;
+             transition: background-color 0.3s, color 0.3s;
+           "
+           [ngStyle]="activeMenu === 'reports' ? {
+             'background-color': '#0d6efd',
+             'color': 'white'
+           } : {}"
+           onmouseover="this.style.backgroundColor=(!this.classList.contains('active')) ? '#e7f1ff' : '';"
+           onmouseout="this.style.backgroundColor=(!this.classList.contains('active')) ? 'transparent' : '';">
+          <i class="fas fa-chart-bar fs-5"></i>
+          Reports
+        </a>
+      </li>
+      <li class="nav-item mb-2">
+        <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 fw-semibold"
+           [class.active]="activeMenu === 'settings'"
+           (click)="activeMenu = 'settings'; $event.preventDefault()"
+           href="#"
+           style="
+             border-radius: 0;
+             color: #495057;
+             transition: background-color 0.3s, color 0.3s;
+           "
+           [ngStyle]="activeMenu === 'settings' ? {
+             'background-color': '#0d6efd',
+             'color': 'white'
+           } : {}"
+           onmouseover="this.style.backgroundColor=(!this.classList.contains('active')) ? '#e7f1ff' : '';"
+           onmouseout="this.style.backgroundColor=(!this.classList.contains('active')) ? 'transparent' : '';">
+          <i class="fas fa-cog fs-5"></i>
+          Settings
+        </a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+
+      <!-- Main Content -->
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-5">
+
+        <!-- Header Section -->
+        <!-- <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-3 mb-4 border-bottom border-3 shadow-sm">
+  <div>
+    <h1 class="h2 fw-bold mb-1" style="color: #0d6efd; letter-spacing: 0.05em; text-transform: capitalize;">
+      {{ getGreeting() }}, {{ currentUser?.username }}!
+    </h1>
+    <p class="text-muted fs-6" *ngIf="activeMenu === 'dashboard'">Here's what's happening at your school today.</p>
+    <p class="text-muted fs-6" *ngIf="activeMenu === 'add-school'">Create a new school and assign an owner.</p>
+    <p class="text-muted fs-6" *ngIf="activeMenu === 'schools'">Manage all schools in the system.</p>
+  </div>
+
+  <div class="text-end">
+    <div class="analog-clock" style="width: 80px; height: 80px; margin: 0 auto;">
+      <div class="clock-face">
+        <div class="hand hour-hand"></div>
+        <div class="hand minute-hand"></div>
+        <div class="hand second-hand"></div>
+      </div>
+    </div>
+    <div class="text-muted mt-1" style="letter-spacing: 0.05em; font-size: 0.85rem;">Current Time</div>
+  </div>
+</div>
+
+<style>
+  .analog-clock {
+    position: relative;
+    border: 3px solid #0d6efd;
+    border-radius: 50%;
+    background: white;
+    box-shadow:
+      0 0 10px #0d6efd55,
+      inset 0 0 8px #0d6efd99;
+  }
+
+  .clock-face {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform: translateY(-3px);
+  }
+
+  .hand {
+    position: absolute;
+    background: #0d6efd;
+    top: 50%;
+    left: 50%;
+    transform-origin: bottom center;
+    border-radius: 2px;
+  }
+
+  .hour-hand {
+    width: 5px;
+    height: 22%;
+    margin-left: -2.5px;
+    margin-top: -22%;
+    animation: rotateHour 43200s linear infinite; /* 12 hours */
+  }
+
+  .minute-hand {
+    width: 3px;
+    height: 30%;
+    margin-left: -1.5px;
+    margin-top: -30%;
+    animation: rotateMinute 3600s linear infinite; /* 60 minutes */
+  }
+
+  .second-hand {
+    width: 2px;
+    height: 38%;
+    margin-left: -1px;
+    margin-top: -38%;
+    background: #dc3545;
+    animation: rotateSecond 60s linear infinite; /* 60 seconds */
+  }
+
+  /* Animations */
+
+  @keyframes rotateHour {
+    from { transform: rotate(90deg); }
+    to { transform: rotate(450deg); }
+  }
+
+  @keyframes rotateMinute {
+    from { transform: rotate(90deg); }
+    to { transform: rotate(450deg); }
+  }
+
+  @keyframes rotateSecond {
+    from { transform: rotate(90deg); }
+    to { transform: rotate(450deg); }
+  }
+</style> -->
+
+
+        <!-- Dashboard Content -->
+  <div *ngIf="activeMenu === 'dashboard'" class="d-flex flex-column vh-70 overflow-hidden">
+  <!-- Top Section: Header + Quick Stats -->
+  <div class="bg-light py-5 flex-shrink-0 mt-0">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-6 mb-4 mb-lg-0">
+          <div class="d-flex align-items-center">
+            <div class="bg-white text-secondary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+              <i class="fas fa-network-wired fs-4"></i>
+            </div>
+            <div>
+              <h1 class="display-6 fw-semibold text-dark mb-1">ADMIN DASHBOARD</h1>
+              <p class="text-muted mb-0">Comprehensive oversight of your educational network </p>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+          <button class="btn btn-outline-secondary btn-lg rounded-pill px-4 py-2 shadow-sm">
+            <i class="fas fa-sync-alt me-2"></i>
+            <span class="fw-semibold">Refresh Data</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Stats Cards -->
+  <div class="container flex-shrink-0">
+    <div class="row mb-4">
+      <div class="col-xl-3 col-md-6 mb-4" *ngFor="let stat of quickStats">
+        <div class="card border-0 shadow-sm h-100" [class]="'border-start border-' + stat.color + ' border-4'">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col">
+                <div class="text-uppercase text-muted fw-bold mb-1" style="font-size: 0.75rem;">
+                  {{ stat.title }}
+                </div>
+                <div class="h4 mb-0 fw-bold">{{ stat.value }}</div>
+                <div class="mt-2">
+                  <span class="badge" [class]="'bg-' + stat.color + '-subtle text-' + stat.color">
+                    {{ stat.change }}
+                  </span>
+                </div>
+              </div>
+              <div class="col-auto">
+                <i class="fas fa-2x text-muted opacity-25" [class]="stat.icon"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content & Sidebar - Use flex-grow + overflow-auto to fill remaining space and scroll -->
+  <div class="container flex-grow-1 overflow-auto">
+    <div class="row h-100">
+      <div class="col-lg-8 mb-4 d-flex flex-column">
+        <div class="card shadow-sm border-0 flex-grow-1 d-flex flex-column">
+          <div class="card-header bg-white border-0 d-flex align-items-center pb-2">
+            <i class="fas fa-clock text-primary fs-4 me-2"></i>
+            <h5 class="mb-0 fw-bold text-primary">Recent Activities</h5>
+          </div>
+          <div class="card-body overflow-auto">
+            <div class="list-group list-group-flush">
+              <div
+                class="list-group-item d-flex align-items-center border-0 px-0 py-2"
+                *ngFor="let activity of recentActivities"
+              >
+                <div
+                  class="d-flex align-items-center justify-content-center rounded-circle bg-primary text-white flex-shrink-0 me-3"
+                  style="width: 40px; height: 40px; font-size: 18px; box-shadow: 0 2px 6px rgba(0, 123, 255, 0.4);"
+                >
+                  <i class="fas fa-heartbeat"></i>
+                </div>
+                <div>
+                  <p class="mb-1 fw-semibold text-dark small">{{ activity.message }}</p>
+                  <small class="text-muted">{{ activity.time }}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 mb-4 d-flex flex-column">
+        <!-- Quick Actions -->
+        <div class="card shadow-lg border-0 mb-4 rounded-4 flex-shrink-0" style="background: linear-gradient(145deg, #f0f4ff, #dbe4ff);">
+          <div class="card-header bg-transparent border-0 pb-2 d-flex align-items-center">
+            <i class="fas fa-bolt me-3 text-warning fs-4" style="filter: drop-shadow(0 0 4px #f7c548);"></i>
+            <h5 class="card-title mb-0 fw-bold text-primary text-uppercase" style="letter-spacing: 0.1em;">
+              Quick Actions
+            </h5>
+          </div>
+          <div class="card-body px-3">
+            <div class="d-grid gap-3">
+              <button class="btn btn-primary btn-sm d-flex align-items-center justify-content-center gap-2 fw-semibold shadow-sm rounded-3"
+                      (click)="activeMenu = 'add-school'" style="transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                <i class="fas fa-school fs-5"></i> Add School
+              </button>
+              <button class="btn btn-success btn-sm d-flex align-items-center justify-content-center gap-2 fw-semibold shadow-sm rounded-3"
+                      (click)="activeMenu = 'schools'" style="transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                <i class="fas fa-list fs-5"></i> Manage Schools
+              </button>
+              <button class="btn btn-info btn-sm d-flex align-items-center justify-content-center gap-2 fw-semibold shadow-sm rounded-3"
+                      (click)="activeMenu = 'reports'" style="transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                <i class="fas fa-chart-bar fs-5"></i> View Reports
+              </button>
+              <button class="btn btn-warning btn-sm d-flex align-items-center justify-content-center gap-2 fw-semibold shadow-sm rounded-3"
+                      (click)="activeMenu = 'settings'" style="transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                <i class="fas fa-cog fs-5"></i> Settings
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Today's Summary -->
+        <div class="card shadow-sm border-0 rounded-3 flex-grow-1" style="background: #fff;">
+          <div class="card-header bg-white border-0 pb-3 d-flex align-items-center">
+            <i class="fas fa-calendar-day me-3 text-info fs-4"></i>
+            <h5 class="card-title mb-0 fw-bold text-info text-uppercase" style="letter-spacing: 0.1em;">
+              Today's Summary
+            </h5>
+          </div>
+          <div class="card-body overflow-auto">
+
+            <div class="mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="fw-semibold">Total Schools</span>
+                <span class="badge bg-primary fs-6">{{ schools.length }}</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-primary" role="progressbar" style="width: 75%;"
+                  aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="fw-semibold">Active Schools</span>
+                <span class="badge bg-success fs-6">94%</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-success" role="progressbar" style="width: 94%;"
+                  aria-valuenow="94" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="fw-semibold">Pending Tasks</span>
+                <span class="badge bg-warning fs-6">7</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-warning" role="progressbar" style="width: 30%;"
+                  aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+        <!-- Add School Content -->
+        <div *ngIf="activeMenu === 'add-school'">
+  <div class="row justify-content-center">
+    <div class="col-lg-17">
+      <div class="card border-0 shadow-lg " style="background: #fff;">
+        <!-- Header -->
+        <div class="card-header bg-gradient" style="background: linear-gradient(135deg, #92DE8B 0%, #D9F2CB 100%); border-bottom: none; border-radius: 1rem 1rem 0 0;">
+          <h4 class="mb-0 fw-bold text-dark d-flex align-items-center">
+            <i class="fas fa-plus-circle text-success me-3 fs-4"></i>
+            Add New School
+          </h4>
+        </div>
+
+        <div class="card-body p-5">
+          <!-- Alerts -->
+          <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show d-flex align-items-center shadow-sm" role="alert">
+            <i class="fas fa-exclamation-triangle me-3 fs-5"></i>
+            <div class="flex-grow-1">{{ errorMessage }}</div>
+            <button type="button" class="btn-close" (click)="clearMessages()"></button>
+          </div>
+
+          <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show d-flex align-items-center shadow-sm" role="alert">
+            <i class="fas fa-check-circle me-3 fs-5"></i>
+            <div class="flex-grow-1">{{ successMessage }}</div>
+            <button type="button" class="btn-close" (click)="clearMessages()"></button>
+          </div>
+
+          <!-- Form -->
+          <form (ngSubmit)="createSchool(); $event.preventDefault()" #schoolForm="ngForm" novalidate>
+            <div class="row g-4">
+              <!-- School Info -->
+              <div class="col-md-6 border-end pe-md-4">
+                <h5 class="mb-4 text-success fw-semibold d-flex align-items-center">
+                  <i class="fas fa-school me-3 fs-5"></i> School Information
+                </h5>
+
+                <div class="mb-4">
+                  <label for="schoolName" class="form-label fw-semibold">School Name *</label>
+                  <input
+                    type="text"
+                    id="schoolName"
+                    class="form-control form-control-lg shadow-sm"
+                    [(ngModel)]="newSchool.schoolName"
+                    name="schoolName"
+                    required
+                    placeholder="Enter school name"
+                  />
+                </div>
+
+                <div class="mb-4">
+                  <label for="address" class="form-label fw-semibold">Address with City Search</label>
+                  <div class="position-relative">
+                    <input
+                      type="text"
+                      id="address"
+                      class="form-control form-control-lg shadow-sm"
+                      [(ngModel)]="newSchool.address"
+                      name="address"
+                      placeholder="Type city name (e.g., Lahore, Karachi, Islamabad)..."
+                      (input)="onAddressInput($event)"
+                      (blur)="hideSuggestions()"
+                      autocomplete="off"
+                    />
+                    
+                    <!-- City Suggestions Dropdown -->
+                    <div *ngIf="showSuggestions && citySuggestions.length > 0" 
+                         class="position-absolute w-100 mt-1 bg-white border rounded-3 shadow-lg" 
+                         style="z-index: 1000; max-height: 200px; overflow-y: auto;">
+                      <div *ngFor="let city of citySuggestions" 
+                           class="p-3 border-bottom cursor-pointer hover-bg-light d-flex align-items-center"
+                           (click)="selectCity(city)"
+                           style="cursor: pointer;"
+                           onmouseover="this.style.backgroundColor='#f8f9fa'"
+                           onmouseout="this.style.backgroundColor='white'">
+                        <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                        <div>
+                          <div class="fw-semibold">{{ city.display_name.split(',')[0] }}</div>
+                          <small class="text-muted">{{ city.display_name }}</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Interactive Map -->
+                <div class="mb-4">
+                  <label class="form-label fw-semibold">
+                    <i class="fas fa-globe-americas me-2 text-info"></i>
+                    School Location
+                  </label>
+                  <div class="card border-0 shadow-sm">
+                    <div class="card-body p-2">
+                      <div #mapContainer 
+                           id="schoolLocationMap" 
+                           style="height: 350px; width: 100%; border-radius: 8px; background: #f8f9fa; position: relative; overflow: hidden;">
+                        <!-- Loading indicator -->
+                        <div *ngIf="!mapInitialized" class="map-loading">
+                          <div class="text-center">
+                            <div class="spinner-border text-primary mb-2" role="status">
+                              <span class="visually-hidden">Loading map...</span>
+                            </div>
+                            <div class="text-muted">Loading map...</div>
+                          </div>
+                        </div>
+                      </div>
+                      <small class="text-muted mt-2 d-block">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Search for a city above to see it on the map. Now includes Pakistani cities!
+                      </small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <label for="phone" class="form-label fw-semibold">Phone</label>
+                  <input
+                    type="text"
+                    id="phone"
+                    class="form-control form-control-lg shadow-sm"
+                    [(ngModel)]="newSchool.phone"
+                    name="phone"
+                    placeholder="Enter phone number"
+                  />
+                </div>
+
+                <div class="mb-4">
+                  <label for="email" class="form-label fw-semibold">Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    class="form-control form-control-lg shadow-sm"
+                    [(ngModel)]="newSchool.email"
+                    name="email"
+                    placeholder="Enter email address"
+                  />
+                </div>
+              </div>
+
+              <!-- Owner Info -->
+              <div class="col-md-6 ps-md-4">
+                <h5 class="mb-4 text-success fw-semibold d-flex align-items-center">
+                  <i class="fas fa-user-tie me-3 fs-5"></i> School Owner Information
+                </h5>
+
+                <div class="mb-4">
+                  <label for="ownerName" class="form-label fw-semibold">Owner Name *</label>
+                  <input
+                    type="text"
+                    id="ownerName"
+                    class="form-control form-control-lg shadow-sm"
+                    [(ngModel)]="newSchool.ownerName"
+                    name="ownerName"
+                    required
+                    placeholder="Enter owner's full name"
+                  />
+                </div>
+
+                <div class="mb-4">
+                  <label for="ownerUsername" class="form-label fw-semibold">Username *</label>
+                  <input
+                    type="text"
+                    id="ownerUsername"
+                    class="form-control form-control-lg shadow-sm"
+                    [(ngModel)]="newSchool.ownerUsername"
+                    name="ownerUsername"
+                    required
+                    placeholder="Enter username for login"
+                  />
+                </div>
+
+                <div class="mb-4">
+                  <label for="ownerPassword" class="form-label fw-semibold">Password *</label>
+                  <input
+                    type="password"
+                    id="ownerPassword"
+                    class="form-control form-control-lg shadow-sm"
+                    [(ngModel)]="newSchool.ownerPassword"
+                    name="ownerPassword"
+                    required
+                    placeholder="Enter password"
+                  />
+                </div>
+
+                <div class="alert alert-info d-flex align-items-center small shadow-sm">
+                  <i class="fas fa-info-circle me-2 fs-6"></i>
+                  The school owner will use these credentials to login to their dashboard.
+                </div>
+              </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-flex justify-content-end gap-3 mt-5">
+              <button
+                type="button"
+                class="btn btn-outline-secondary fw-semibold px-4"
+                (click)="resetForm(); clearMessages()"
+              >
+                <i class="fas fa-times me-2"></i> Clear Form
+              </button>
+
+              <button
+                type="submit"
+                class="btn btn-success fw-semibold px-5"
+                [disabled]="isLoading || !schoolForm.form.valid"
+              >
+                <i
+                  class="fas"
+                  [class.fa-spinner]="isLoading"
+                  [class.fa-spin]="isLoading"
+                  [class.fa-plus]="!isLoading"
+                  class="me-2"
+                ></i>
+                {{ isLoading ? 'Creating School...' : 'Create School' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+        <!-- Manage Schools Content -->
+        <div *ngIf="activeMenu === 'schools'">
+          <app-manage-schools></app-manage-schools>
+        </div>
+
+        <!-- Reports Content -->
+        <div *ngIf="activeMenu === 'reports'">
+          <div class="card shadow-sm border-0">
+            <div class="card-header" style="background: linear-gradient(135deg, #92DE8B 0%, #ffffff 100%); border: none;">
+              <h4 class="card-title mb-0 text-dark">
+                <i class="fas fa-chart-bar me-2"></i>
+                Reports & Analytics
+              </h4>
+            </div>
+            <div class="card-body">
+              <div class="text-center py-5">
+                <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Reports Coming Soon</h5>
+                <p class="text-muted">This section will show detailed analytics and reports.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings Content -->
+        <div *ngIf="activeMenu === 'settings'">
+          <div class="card shadow-sm border-0">
+            <div class="card-header" style="background: linear-gradient(135deg, #92DE8B 0%, #ffffff 100%); border: none;">
+              <h4 class="card-title mb-0 text-dark">
+                <i class="fas fa-cog me-2"></i>
+                System Settings
+              </h4>
+            </div>
+            <div class="card-body">
+              <div class="text-center py-5">
+                <i class="fas fa-cog fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Settings Coming Soon</h5>
+                <p class="text-muted">This section will show system configuration options.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>

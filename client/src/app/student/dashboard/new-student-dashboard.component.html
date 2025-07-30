@@ -1,0 +1,556 @@
+<div class="new-student-dashboard">
+  <!-- SIDEBAR LAYOUT -->
+  <div class="sidebar-layout">
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow">
+      <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="#">
+          <img *ngIf="schoolSettings?.logoImageUrl" 
+               [src]="schoolSettings?.logoImageUrl" 
+               alt="School Logo" 
+               class="navbar-logo me-2"
+               width="32" 
+               height="32">
+          <i *ngIf="!schoolSettings?.logoImageUrl" class="fas fa-user-graduate me-2"></i>
+          {{ schoolSettings?.schoolDisplayName || 'Student Portal' }}
+        </a>
+        
+        <div class="navbar-nav ms-auto">
+          <div class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" 
+               role="button" data-bs-toggle="dropdown">
+              <img src="https://cdn-icons-png.flaticon.com/512/1802/1802979.png" alt="Avatar" class="rounded-circle me-2" width="32" height="32">
+              <div class="text-start">
+                <div style="font-size: 0.9rem;">{{ currentUser?.username || 'Student' }}</div>
+                <div style="font-size: 0.75rem; opacity: 0.8;">Student</div>
+              </div>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-user-graduate me-2"></i>Student Info</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#" (click)="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+          <div class="position-sticky pt-3">
+            <!-- Student Info -->
+            <div class="text-center mb-4 p-3 user-info-card rounded shadow-sm">
+              <div class="student-avatar-container mb-2">
+                <img src="https://cdn-icons-png.flaticon.com/512/1802/1802979.png" 
+                     alt="Student Avatar" 
+                     class="student-avatar-img">
+              </div>
+              <h6 class="mb-1 text-white fw-bold">{{ currentUser?.username }}</h6>
+              <small class="text-white-50">Student at {{ schoolSettings?.schoolDisplayName || 'School' }}</small>
+            </div>
+            
+            <!-- Navigation Menu -->
+            <ul class="nav nav-pills flex-column mb-auto">
+              <li class="nav-item">
+                <a href="javascript:void(0)" 
+                   class="nav-link" 
+                   [class.active]="activeMenu === 'dashboard'"
+                   (click)="setActiveMenu('dashboard', $event)">
+                  <i class="fas fa-tachometer-alt me-2"></i>
+                  Dashboard
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="javascript:void(0)" 
+                   class="nav-link" 
+                   [class.active]="activeMenu === 'classes'"
+                   (click)="setActiveMenu('classes', $event)">
+                  <i class="fas fa-chalkboard me-2"></i>
+                  My Classes
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="javascript:void(0)" 
+                   class="nav-link" 
+                   [class.active]="activeMenu === 'announcements'"
+                   (click)="setActiveMenu('announcements', $event)">
+                  <i class="fas fa-bullhorn me-2"></i>
+                  Announcements
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="javascript:void(0)" 
+                   class="nav-link" 
+                   [class.active]="activeMenu === 'assignments'"
+                   (click)="setActiveMenu('assignments', $event)">
+                  <i class="fas fa-tasks me-2"></i>
+                  Assignments
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="javascript:void(0)" 
+                   class="nav-link" 
+                   [class.active]="activeMenu === 'grades'"
+                   (click)="setActiveMenu('grades', $event)">
+                  <i class="fas fa-chart-bar me-2"></i>
+                  Grades
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="javascript:void(0)" 
+                   class="nav-link" 
+                   [class.active]="activeMenu === 'calendar'"
+                   (click)="setActiveMenu('calendar', $event)">
+                  <i class="fas fa-calendar me-2"></i>
+                  Calendar
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+          
+          <!-- Dashboard Tab -->
+          <div *ngIf="activeMenu === 'dashboard'" class="dashboard-content">
+            <!-- Header -->
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+              <div>
+                <h1 class="h2 fw-bold">{{ getGreeting() }}!</h1>
+                <p class="text-muted mb-0">Welcome back! Stay up to date with your classes and assignments.</p>
+              </div>
+              <div class="btn-toolbar mb-2 mb-md-0">
+                <button type="button" class="btn btn-primary btn-lg" (click)="openJoinClassModal()">
+                  <i class="fas fa-plus me-2"></i>
+                  Join New Class
+                </button>
+              </div>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div>
+              <!-- Stats Cards -->
+              <div class="row mb-4">
+                <div class="col-xl-3 col-md-6 mb-4">
+                  <div class="card border-0 shadow-sm stats-card">
+                    <div class="card-body text-center">
+                      <div class="stats-icon bg-primary mb-3">
+                        <i class="fas fa-chalkboard text-white"></i>
+                      </div>
+                      <h3 class="h4 mb-0 fw-bold">{{ dashboardData?.classrooms?.length || 0 }}</h3>
+                      <p class="text-muted mb-0">ENROLLED CLASSES</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-xl-3 col-md-6 mb-4">
+                  <div class="card border-0 shadow-sm stats-card">
+                    <div class="card-body text-center">
+                      <div class="stats-icon bg-warning mb-3">
+                        <i class="fas fa-tasks text-white"></i>
+                      </div>
+                      <h3 class="h4 mb-0 fw-bold">{{ dashboardData?.pendingAssignments || 0 }}</h3>
+                      <p class="text-muted mb-0">PENDING ASSIGNMENTS</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-xl-3 col-md-6 mb-4">
+                  <div class="card border-0 shadow-sm stats-card">
+                    <div class="card-body text-center">
+                      <div class="stats-icon bg-success mb-3">
+                        <i class="fas fa-calendar-check text-white"></i>
+                      </div>
+                      <h3 class="h4 mb-0 fw-bold">2</h3>
+                      <p class="text-muted mb-0">UPCOMING TESTS</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-xl-3 col-md-6 mb-4">
+                  <div class="card border-0 shadow-sm stats-card">
+                    <div class="card-body text-center">
+                      <div class="stats-icon bg-info mb-3">
+                        <i class="fas fa-bell text-white"></i>
+                      </div>
+                      <h3 class="h4 mb-0 fw-bold">{{ dashboardData?.recentAnnouncements?.length || 0 }}</h3>
+                      <p class="text-muted mb-0">NEW ANNOUNCEMENTS</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick Actions -->
+              <div class="row mb-4">
+                <div class="col-12">
+                  <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                      <h5 class="card-title fw-bold mb-3">
+                        <i class="fas fa-rocket me-2 text-primary"></i>
+                        Quick Actions
+                      </h5>
+                      <div class="row">
+                        <div class="col-md-3 mb-3">
+                          <button class="btn btn-outline-primary w-100 py-3" (click)="openJoinClassModal()">
+                            <i class="fas fa-plus-circle fa-2x mb-2 d-block"></i>
+                            <span class="fw-bold">Join Class</span>
+                          </button>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                          <button class="btn btn-outline-success w-100 py-3" (click)="setActiveMenu('assignments')">
+                            <i class="fas fa-file-alt fa-2x mb-2 d-block"></i>
+                            <span class="fw-bold">View Assignments</span>
+                          </button>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                          <button class="btn btn-outline-info w-100 py-3" (click)="setActiveMenu('grades')">
+                            <i class="fas fa-chart-line fa-2x mb-2 d-block"></i>
+                            <span class="fw-bold">Check Grades</span>
+                          </button>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                          <button class="btn btn-outline-warning w-100 py-3" (click)="setActiveMenu('calendar')">
+                            <i class="fas fa-calendar fa-2x mb-2 d-block"></i>
+                            <span class="fw-bold">View Calendar</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- My Classes Grid -->
+              <div class="row">
+                <div class="col-12 mb-4">
+                  <h3 class="h4 fw-bold mb-3">My Classes</h3>
+                  <div class="row" *ngIf="dashboardData && dashboardData.classrooms && dashboardData.classrooms.length > 0; else noClasses">
+                    <div class="col-xl-4 col-lg-6 mb-4" *ngFor="let classroom of dashboardData.classrooms">
+                      <div class="card h-100 shadow-sm border-0 classroom-card" (click)="viewClassroomDetails(classroom, $event)">
+                        <div class="card-header classroom-header" [style.background]="getRandomGradient()">
+                          <h5 class="card-title text-white mb-1 fw-bold">{{ classroom.name }}</h5>
+                          <p class="card-text text-white-50 mb-0">{{ classroom.subject }}</p>
+                          <small class="text-white-50">Teacher: {{ classroom.teacherName }}</small>
+                        </div>
+                        <div class="card-body">
+                          <p class="card-text text-muted" *ngIf="classroom.description">{{ classroom.description }}</p>
+                          <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                              <i class="fas fa-users me-1"></i>
+                              {{ classroom.studentCount || 0 }} students
+                            </small>
+                            <small class="text-muted">
+                              <i class="fas fa-code me-1"></i>
+                              {{ classroom.classCode }}
+                            </small>
+                          </div>
+                          <div class="mt-3">
+                            <button class="btn btn-outline-primary btn-sm w-100" (click)="viewClassroomDetails(classroom, $event)">
+                              <i class="fas fa-eye me-1"></i>
+                              View Class
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <ng-template #noClasses>
+                    <div class="text-center py-5">
+                      <i class="fas fa-chalkboard fa-4x text-muted mb-3"></i>
+                      <h4 class="text-muted">No Classes Joined Yet</h4>
+                      <p class="text-muted mb-4">Join your first class to get started with your studies!</p>
+                      <button class="btn btn-primary btn-lg" (click)="openJoinClassModal()">
+                        <i class="fas fa-plus me-2"></i>
+                        Join Your First Class
+                      </button>
+                    </div>
+                  </ng-template>
+                </div>
+              </div>
+
+              <!-- Recent Announcements -->
+              <!-- <div class="row" *ngIf="dashboardData && dashboardData.recentAnnouncements && dashboardData.recentAnnouncements.length > 0">
+                <div class="col-12">
+                  <h3 class="h4 fw-bold mb-3">Recent Announcements</h3>
+                  <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                      <div class="announcement-item border-bottom pb-3 mb-3" *ngFor="let announcement of dashboardData.recentAnnouncements; last as isLast" [class.border-bottom]="!isLast" [class.pb-3]="!isLast" [class.mb-3]="!isLast">
+                        <h6 class="fw-bold mb-1">{{ announcement.title }}</h6>
+                        <p class="text-muted mb-2">{{ announcement.content }}</p>
+                        <small class="text-muted">{{ announcement.createdAt | date:'medium' }} • {{ announcement.authorName }}</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div> -->
+
+              <ng-container *ngIf="dashboardData?.recentAnnouncements as announcements">
+  <div class="row" *ngIf="announcements.length > 0">
+    <div class="col-12 position-relative">
+      <h3 class="h4 fw-bold mb-4 text-dark">Recent Announcements</h3>
+
+      <div id="announcementCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+          <div
+            class="carousel-item"
+            *ngFor="let announcement of announcements; let i = index"
+            [class.active]="i === 0"
+          >
+            <div 
+              class="card border rounded-3 p-4 mx-auto" 
+              style="max-width: 600px; background-color: #ffffff; color: #000000; box-shadow: 0 0 8px rgba(0,0,0,0.05);"
+            >
+              <div class="card-body">
+                <h5 class="fw-bold mb-2" style="color: #000;">{{ announcement.title }}</h5>
+                <p class="mb-3" style="color: #222;">{{ announcement.content }}</p>
+                <div class="d-flex justify-content-between align-items-center" style="color: #444;">
+                  <small>{{ announcement.createdAt | date: 'medium' }}</small>
+                  <small class="fw-semibold">{{ announcement.authorName }}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carousel Controls -->
+        <button
+          class="carousel-control-prev"
+          type="button"
+          data-bs-target="#announcementCarousel"
+          data-bs-slide="prev"
+          style="
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background-color: rgb(0, 0, 0);
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+          "
+        >
+          <span class="carousel-control-prev-icon" style="filter: invert(0);"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+
+        <button
+          class="carousel-control-next"
+          type="button"
+          data-bs-target="#announcementCarousel"
+          data-bs-slide="next"
+          style="
+            position: absolute;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background-color: rgb(0, 0, 0);
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+          "
+        >
+          <span class="carousel-control-next-icon" style="filter: invert(0);"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+            </div>
+          </div>
+
+          <!-- Classes Tab -->
+          <div *ngIf="activeMenu === 'classes'" class="classes-content">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+              <h1 class="h2 fw-bold">My Classes</h1>
+              <button type="button" class="btn btn-primary" (click)="openJoinClassModal()">
+                <i class="fas fa-plus me-2"></i>
+                Join New Class
+              </button>
+            </div>
+
+            <div class="row" *ngIf="dashboardData && dashboardData.classrooms && dashboardData.classrooms.length > 0; else noClassesManage">
+              <div class="col-xl-4 col-lg-6 mb-4" *ngFor="let classroom of dashboardData.classrooms">
+                <div class="card h-100 shadow-sm border-0">
+                  <div class="card-header" [style.background]="getRandomGradient()">
+                    <h5 class="card-title text-white mb-1 fw-bold">{{ classroom.name }}</h5>
+                    <p class="card-text text-white-50 mb-0">{{ classroom.subject }}</p>
+                    <small class="text-white-50">Teacher: {{ classroom.teacherName }}</small>
+                  </div>
+                  <div class="card-body">
+                    <p class="card-text text-muted" *ngIf="classroom.description">{{ classroom.description }}</p>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <small class="text-muted">
+                        <i class="fas fa-users me-1"></i>
+                        {{ classroom.studentCount || 0 }} students
+                      </small>
+                      <span class="badge bg-primary">{{ classroom.classCode }}</span>
+                    </div>
+                    <div class="d-grid gap-2">
+                      <button class="btn btn-outline-primary btn-sm" (click)="viewClassroomDetails(classroom, $event)">
+                        <i class="fas fa-eye me-1"></i>
+                        View Class Details
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <ng-template #noClassesManage>
+              <div class="text-center py-5">
+                <i class="fas fa-chalkboard fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">No Classes Joined</h4>
+                <p class="text-muted mb-4">Ask your teacher for a class code to join your first class!</p>
+                <button class="btn btn-primary btn-lg" (click)="openJoinClassModal()">
+                  <i class="fas fa-plus me-2"></i>
+                  Join Your First Class
+                </button>
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Other tabs content -->
+          <div *ngIf="activeMenu === 'assignments'" class="text-center py-5">
+            <i class="fas fa-tasks fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted">Assignments</h4>
+            <p class="text-muted">Assignment tracking coming soon!</p>
+          </div>
+
+          <div *ngIf="activeMenu === 'grades'" class="text-center py-5">
+            <i class="fas fa-chart-bar fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted">Grades</h4>
+            <p class="text-muted">Grade tracking coming soon!</p>
+          </div>
+
+          <!-- Announcements -->
+          <div *ngIf="activeMenu === 'announcements'">
+  <div class="d-flex justify-content-between align-items-center pt-5 pb-4 mb-5 border-bottom border-3 border-dark">
+    <div>
+      <h1 class="h1 fw-bold text-dark text-uppercase mb-2" style="letter-spacing: 2px;">Announcements</h1>
+      <p class="text-secondary fs-5 fst-italic">View announcements from your teachers</p>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="announcements && announcements.length > 0; else noAnnouncements">
+    <div class="col-12">
+      <div class="card border-0 shadow rounded-4 bg-white">
+        <div class="card-body px-5 py-4">
+          <div *ngFor="let announcement of announcements; last as isLast"
+               class="announcement-item p-4 mb-5 rounded-4 shadow-sm border border-light"
+               [class.mb-5]="!isLast">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div class="flex-grow-1">
+                <h4 class="fw-bold text-dark text-uppercase mb-1" style="letter-spacing: 1px;">{{ announcement.title }}</h4>
+                <div class="d-flex flex-wrap align-items-center text-secondary small fw-semibold mb-2">
+                  <div class="me-4 d-flex align-items-center">
+                    <i class="fas fa-chalkboard fa-lg me-2"></i>
+                    <span>{{ announcement.classroomName }}</span>
+                  </div>
+                  <div class="me-4 d-flex align-items-center">
+                    <i class="fas fa-user fa-lg me-2"></i>
+                    <span>{{ announcement.authorName }}</span>
+                  </div>
+                  <div class="d-flex align-items-center">
+                    <i class="fas fa-clock fa-lg me-2"></i>
+                    <span>{{ announcement.createdAt | date:'medium' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <span class="badge bg-dark text-white fs-6 rounded-pill px-4 py-2 shadow">
+                NEW
+              </span>
+            </div>
+
+            <div class="announcement-content text-dark fs-5 fw-normal">
+              <p class="mb-0">{{ announcement.content }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noAnnouncements>
+    <div class="text-center py-5">
+      <i class="fas fa-bullhorn fa-6x text-secondary mb-4"></i>
+      <h4 class="text-dark fw-bold text-uppercase mb-3" style="letter-spacing: 1.5px;">No Announcements</h4>
+      <p class="text-secondary fs-5 fst-italic">Your teachers haven't posted any announcements yet</p>
+    </div>
+  </ng-template>
+</div>
+
+
+
+          <div *ngIf="activeMenu === 'calendar'" class="text-center py-5">
+            <i class="fas fa-calendar fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted">Calendar</h4>
+            <p class="text-muted">Academic calendar coming soon!</p>
+          </div>
+
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- Join Class Modal -->
+  <div class="modal fade" id="joinClassModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">
+            <i class="fas fa-plus-circle me-2"></i>
+            Join Class
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form [formGroup]="joinClassForm" (ngSubmit)="joinClass()">
+          <div class="modal-body">
+            <div class="text-center mb-4">
+              <i class="fas fa-users fa-3x text-primary mb-3"></i>
+              <p class="text-muted">Ask your teacher for the class code, then enter it here.</p>
+            </div>
+            <div class="mb-3">
+              <label for="classCode" class="form-label fw-bold">Class Code</label>
+              <input type="text" 
+                     class="form-control text-center" 
+                     id="classCode"
+                     formControlName="classCode"
+                     placeholder="Enter 6-digit class code"
+                     style="font-size: 1.2rem; letter-spacing: 2px;">
+              <div class="form-text">Class codes are usually 6 characters long (e.g., ABC123)</div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" 
+                    class="btn btn-primary" 
+                    [disabled]="!joinClassForm.valid || isJoiningClass">
+              <span *ngIf="isJoiningClass" class="spinner-border spinner-border-sm me-2"></span>
+              <i *ngIf="!isJoiningClass" class="fas fa-plus me-2"></i>
+              {{ isJoiningClass ? 'Joining...' : 'Join Class' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

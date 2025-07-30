@@ -1,0 +1,395 @@
+/* Teacher Classroom Detail Component Styles */
+.classroom-detail-container {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+/* Header Section */
+.classroom-header {
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  color: white;
+  padding: 2rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.classroom-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+  opacity: 0.3;
+}
+
+.header-content {
+  position: relative;
+  z-index: 2;
+  container: fluid;
+  padding: 0 2rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.classroom-info {
+  flex-grow: 1;
+}
+
+.classroom-title {
+  font-size: 2.5rem;
+  font-weight: 300;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.classroom-subtitle {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-bottom: 0.25rem;
+}
+
+.classroom-teacher {
+  font-size: 1rem;
+  opacity: 0.8;
+  margin-bottom: 1rem;
+}
+
+.classroom-code {
+  display: inline-block;
+  background: rgba(255,255,255,0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.code-label {
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
+
+.code-value {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+  letter-spacing: 1px;
+}
+
+.header-avatar {
+  margin-left: 2rem;
+}
+
+.avatar-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 600;
+  border: 3px solid rgba(255,255,255,0.3);
+  backdrop-filter: blur(10px);
+}
+
+/* Navigation Tabs */
+.classroom-nav {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-tabs .nav-link {
+  border: none;
+  color: #6c757d;
+  font-weight: 500;
+  padding: 1rem 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+  color: #1976d2;
+  background: rgba(25, 118, 210, 0.05);
+  border: none;
+}
+
+.nav-tabs .nav-link.active {
+  color: #1976d2;
+  background: white;
+  border: none;
+  border-bottom: 3px solid #1976d2;
+  font-weight: 600;
+}
+
+/* Content Area */
+.classroom-content {
+  flex-grow: 1;
+}
+
+.section-title {
+  color: #333;
+  font-weight: 600;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 0.5rem;
+}
+
+/* Announcement Creation */
+.create-announcement-prompt .card {
+  border: 2px dashed #dee2e6;
+  transition: all 0.3s ease;
+}
+
+.create-announcement-prompt .card:hover {
+  border-color: #1976d2;
+  background-color: #f8f9ff;
+}
+
+.announcement-form {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.announcement-form .form-control:focus {
+  border-color: #1976d2;
+  box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.25);
+}
+
+/* Announcements */
+.announcement-card {
+  border: none;
+  transition: all 0.3s ease;
+  border-left: 4px solid #28a745;
+}
+
+.announcement-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+
+.announcement-avatar .avatar-sm {
+  width: 40px;
+  height: 40px;
+  font-size: 0.875rem;
+}
+
+.announcement-title {
+  color: #333;
+  font-weight: 600;
+}
+
+.announcement-author {
+  font-weight: 500;
+}
+
+.announcement-content {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+}
+
+.announcement-actions .btn-group .btn {
+  border: none;
+  padding: 0.25rem 0.5rem;
+}
+
+/* Assignment Cards */
+.assignment-card {
+  border: none;
+  transition: all 0.3s ease;
+  border-top: 4px solid #ff9800;
+}
+
+.assignment-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+
+.assignment-stats small {
+  font-size: 0.75rem;
+}
+
+/* Sidebar */
+.sidebar-section .card {
+  border: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.sidebar-section .card-header {
+  border-bottom: 1px solid #e9ecef;
+  font-weight: 600;
+}
+
+.stat-item {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.stat-item:last-child {
+  border-bottom: none;
+}
+
+.assignment-item {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.assignment-item:last-child {
+  border-bottom: none;
+}
+
+.class-detail-item {
+  font-size: 0.875rem;
+}
+
+/* No Content States */
+.no-content {
+  background: white;
+  border-radius: 12px;
+  padding: 3rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Loading and Error States */
+.loading-container,
+.error-container {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Avatar Styles */
+.avatar-sm {
+  width: 32px;
+  height: 32px;
+  font-size: 0.75rem;
+}
+
+/* Enhanced Button Styles */
+.btn-primary {
+  background: linear-gradient(45deg, #1976d2, #1565c0);
+  border: none;
+  box-shadow: 0 2px 4px rgba(25, 118, 210, 0.3);
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(25, 118, 210, 0.4);
+  background: linear-gradient(45deg, #1565c0, #0d47a1);
+}
+
+.btn-outline-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(25, 118, 210, 0.3);
+}
+
+/* Form Enhancements */
+.form-control {
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #1976d2;
+  box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.15);
+  transform: translateY(-1px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .classroom-header {
+    padding: 1.5rem 0;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0 1rem;
+  }
+  
+  .header-avatar {
+    margin-left: 0;
+    margin-top: 1rem;
+    align-self: flex-end;
+  }
+  
+  .classroom-title {
+    font-size: 2rem;
+  }
+  
+  .avatar-circle {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+  }
+  
+  .classroom-nav .container-fluid {
+    padding: 0 1rem;
+  }
+  
+  .nav-tabs .nav-link {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+  
+  .announcement-form .d-flex {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+/* Tab Content Animation */
+.tab-content {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Utility Classes */
+.btn-link:hover {
+  text-decoration: none;
+}
+
+.badge {
+  font-size: 0.75rem;
+  padding: 0.375em 0.75em;
+}
+
+/* Dropdown Enhancements */
+.dropdown-menu {
+  border: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border-radius: 8px;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa;
+  transform: translateX(5px);
+  transition: all 0.2s ease;
+}

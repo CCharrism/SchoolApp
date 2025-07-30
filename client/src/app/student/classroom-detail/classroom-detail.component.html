@@ -1,0 +1,252 @@
+
+
+<!-- Always show content with null-safe operators -->
+<div class="classroom-detail-container">
+  <!-- Header Banner -->
+  <div class="classroom-header" [style.background-color]="getClassroomThemeColor()">
+    <div class="header-content">
+      <button class="btn btn-link text-white mb-3" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+      </button>
+      <div class="classroom-info">
+        <h1 class="classroom-title">{{ classroom?.name || 'Loading...' }}</h1>
+        <p class="classroom-subtitle">{{ classroom?.subject || 'Subject' }} • Section {{ classroom?.section || '...' }}</p>
+        <p class="classroom-teacher">{{ classroom?.teacherName || 'Teacher' }}</p>
+        <div class="classroom-code">
+          <span class="code-label">Class code:</span>
+          <span class="code-value">{{ classroom?.classCode || '...' }}</span>
+        </div>
+      </div>
+      <div class="header-avatar">
+        <div class="avatar-circle">
+          {{ getInitials(classroom?.name || 'Classroom') }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <div class="classroom-nav bg-white border-bottom">
+    <div class="container-fluid">
+      <ul class="nav nav-tabs border-0">
+        <li class="nav-item">
+          <a href="javascript:void(0)" 
+             class="nav-link" 
+             [class.active]="activeTab === 'stream'"
+             (click)="setActiveTab('stream', $event)">
+            <i class="fas fa-stream me-2"></i>Stream
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="javascript:void(0)" 
+             class="nav-link" 
+             [class.active]="activeTab === 'classwork'"
+             (click)="setActiveTab('classwork', $event)">
+            <i class="fas fa-clipboard-list me-2"></i>Classwork
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="javascript:void(0)" 
+             class="nav-link" 
+             [class.active]="activeTab === 'people'"
+             (click)="setActiveTab('people', $event)">
+            <i class="fas fa-users me-2"></i>People
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Content Area -->
+  <div class="classroom-content">
+    <div class="container-fluid py-4">
+      <!-- Stream Tab -->
+      <div *ngIf="activeTab === 'stream'" class="tab-content">
+        <div class="row">
+          <div class="col-md-8">
+            <!-- Announcements -->
+            <div class="announcements-section">
+              <h4 class="section-title mb-4">
+                <i class="fas fa-bullhorn me-2 text-primary"></i>Announcements
+              </h4>
+              
+              <div *ngIf="announcements.length === 0" class="no-content">
+                <div class="text-center py-5">
+                  <i class="fas fa-bullhorn fa-3x text-muted mb-3"></i>
+                  <h5 class="text-muted">No announcements yet</h5>
+                  <p class="text-muted">Check back later for updates from your teacher.</p>
+                </div>
+              </div>
+
+              <div *ngFor="let announcement of announcements" class="announcement-card card mb-3 shadow-sm">
+                <div class="card-body">
+                  <div class="d-flex align-items-start">
+                    <div class="announcement-avatar me-3">
+                      <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center">
+                        <i class="fas fa-user"></i>
+                      </div>
+                    </div>
+                    <div class="flex-grow-1">
+                      <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="announcement-title mb-1">{{ announcement.title }}</h6>
+                        <small class="text-muted">{{ formatDate(announcement.createdAt) }}</small>
+                      </div>
+                      <p class="announcement-author text-muted small mb-2">{{ announcement.authorName || classroom?.teacherName || 'Teacher' }}</p>
+                      <div class="announcement-content">
+                        <p class="mb-0">{{ announcement.content }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sidebar -->
+          <div class="col-md-4">
+            <div class="sidebar-section">
+              <!-- Upcoming Assignments -->
+              <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                  <h6 class="mb-0">
+                    <i class="fas fa-tasks me-2 text-warning"></i>Upcoming
+                  </h6>
+                </div>
+                <div class="card-body">
+                  <div *ngIf="assignments.length === 0" class="text-center py-3">
+                    <p class="text-muted mb-0">No upcoming assignments</p>
+                  </div>
+                  <div *ngFor="let assignment of assignments.slice(0, 3)" class="assignment-item mb-3">
+                    <div class="d-flex align-items-center">
+                      <i class="fas fa-file-alt me-2 text-primary"></i>
+                      <div class="flex-grow-1">
+                        <h6 class="mb-1 small">{{ assignment.title }}</h6>
+                        <small class="text-muted">Due: {{ formatDate(assignment.dueDate) }}</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Class Information -->
+              <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                  <h6 class="mb-0">
+                    <i class="fas fa-info-circle me-2 text-info"></i>Class Details
+                  </h6>
+                </div>
+                <div class="card-body">
+                  <div class="class-detail-item mb-2">
+                    <strong>Subject:</strong> {{ classroom?.subject || 'Loading...' }}
+                  </div>
+                  <div class="class-detail-item mb-2">
+                    <strong>Section:</strong> {{ classroom?.section || 'Loading...' }}
+                  </div>
+                  <div class="class-detail-item mb-2">
+                    <strong>Teacher:</strong> {{ classroom?.teacherName || 'Loading...' }}
+                  </div>
+                  <div class="class-detail-item mb-2">
+                    <strong>Code:</strong> 
+                    <code class="ms-2">{{ classroom?.classCode || '...' }}</code>
+                  </div>
+                  <div class="class-detail-item" *ngIf="classroom?.description">
+                    <strong>Description:</strong>
+                    <p class="mt-1 mb-0">{{ classroom?.description }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Classwork Tab -->
+      <div *ngIf="activeTab === 'classwork'" class="tab-content">
+        <div class="row">
+          <div class="col-12">
+            <h4 class="section-title mb-4">
+              <i class="fas fa-clipboard-list me-2 text-primary"></i>Assignments
+            </h4>
+            
+            <div *ngIf="assignments.length === 0" class="no-content">
+              <div class="text-center py-5">
+                <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No assignments yet</h5>
+                <p class="text-muted">Assignments will appear here when your teacher creates them.</p>
+              </div>
+            </div>
+
+            <div class="row">
+              <div *ngFor="let assignment of assignments" class="col-md-6 col-lg-4 mb-4">
+                <div class="card assignment-card shadow-sm h-100">
+                  <div class="card-body">
+                    <div class="d-flex align-items-start mb-3">
+                      <i class="fas fa-file-alt fa-2x text-primary me-3"></i>
+                      <div class="flex-grow-1">
+                        <h6 class="card-title mb-1">{{ assignment.title }}</h6>
+                        <small class="text-muted">Due: {{ formatDate(assignment.dueDate) }}</small>
+                      </div>
+                    </div>
+                    <p class="card-text">{{ assignment.description }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="badge bg-warning text-dark">{{ assignment.totalPoints }} pts</span>
+                      <button class="btn btn-outline-primary btn-sm">View</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- People Tab -->
+      <div *ngIf="activeTab === 'people'" class="tab-content">
+        <div class="row">
+          <div class="col-12">
+            <h4 class="section-title mb-4">
+              <i class="fas fa-users me-2 text-primary"></i>Class Members
+            </h4>
+            
+            <!-- Teacher Section -->
+            <div class="mb-4">
+              <h5 class="mb-3">Teacher</h5>
+              <div class="card shadow-sm">
+                <div class="card-body">
+                  <div class="d-flex align-items-center">
+                    <div class="avatar-circle bg-primary text-white me-3">
+                      {{ getInitials(classroom?.teacherName || 'Teacher') }}
+                    </div>
+                    <div>
+                      <h6 class="mb-0">{{ classroom?.teacherName || 'Loading...' }}</h6>
+                      <small class="text-muted">Instructor</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Students Section -->
+            <div>
+              <h5 class="mb-3">Students</h5>
+              <div class="card shadow-sm">
+                <div class="card-body">
+                  <p class="text-muted">Student list will be displayed here.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Error State -->
+<div *ngIf="error" class="error-container">
+  <div class="text-center py-5">
+    <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+    <h5 class="text-danger">{{ error }}</h5>
+    <button class="btn btn-primary mt-3" (click)="goBack()">Return to Dashboard</button>
+  </div>
+</div>

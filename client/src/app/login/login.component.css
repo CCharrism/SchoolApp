@@ -1,0 +1,27 @@
+/* Button base */
+.btn-light {
+  background-color: white;
+  border-color: #92DE8B;
+  color: #000;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* On hover, change background and text color */
+.btn-light.custom-btn-hover:hover,
+.btn-light.custom-btn-hover:focus {
+  background-color: #92DE8B !important;
+  color: white !important;
+  border-color: #92DE8B !important;
+  box-shadow: 0 0 8px rgba(146, 222, 139, 0.7);
+}
+
+/* Input focus effect */
+.form-control:focus {
+  border-color: #92DE8B;
+  box-shadow: 0 0 5px rgba(146, 222, 139, 0.5);
+}
+
+/* Change icon colors on hover */
+.btn-light.custom-btn-hover:hover i {
+  color: white !important;
+}

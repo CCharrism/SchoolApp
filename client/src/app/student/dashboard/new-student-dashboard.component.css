@@ -1,0 +1,97 @@
+/* Student Dashboard - Dynamic Theme Inheritance */
+:root {
+  --primary-color: #92DE8B; /* Default fallback color */
+  --primary-dark: #7bc873;
+  --primary-light: #a8e599;
+  --secondary-color: #f8f9fa;
+  --accent-color: #495057;
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --sidebar-bg: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  --navbar-bg: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  --card-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  --card-hover-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.new-student-dashboard {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+/* Navigation Bar - Inheriting School Head Style */
+.navbar {
+  background: var(--navbar-bg) !important;
+  border-bottom: 3px solid var(--primary-dark);
+  padding: 0.75rem 0;
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+  color: white !important;
+  font-weight: 700;
+}
+
+.navbar-logo {
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  object-fit: cover;
+}
+
+.navbar-nav .nav-link {
+  color: white !important;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+  color: var(--primary-light) !important;
+}
+
+.dropdown-menu {
+  border: none;
+  box-shadow: var(--card-hover-shadow);
+  border-radius: 0.5rem;
+}
+
+/* Sidebar Layout */
+.sidebar-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.sidebar {
+  background: var(--sidebar-bg);
+  min-height: calc(100vh - 76px);
+  padding: 0;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+}
+
+.sidebar .position-sticky {
+  top: 76px;
+}
+
+/* User Info Card */
+.user-info-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  margin: 1rem;
+}
+
+.student-avatar-container {
+  position: relative;
+  display: inline-block;
+}
+
+.student-avatar-img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  background: white;
+  padding: 5px;
+}
+
+

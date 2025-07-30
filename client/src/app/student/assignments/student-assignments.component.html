@@ -1,0 +1,220 @@
+<div class="student-assignments">
+  <div class="container-fluid">
+    <!-- Header -->
+    <div class="assignments-header d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2><i class="fas fa-tasks me-2"></i>My Assignments</h2>
+        <p class="text-muted">Track your assignments and submit your work</p>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-navigation mb-4">
+      <ul class="nav nav-pills">
+        <li class="nav-item">
+          <a class="nav-link" 
+             [class.active]="activeTab === 'pending'"
+             (click)="setActiveTab('pending')">
+            Pending ({{getFilteredAssignments().length}})
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" 
+             [class.active]="activeTab === 'submitted'"
+             (click)="setActiveTab('submitted')">
+            Submitted
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" 
+             [class.active]="activeTab === 'graded'"
+             (click)="setActiveTab('graded')">
+            Graded
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" 
+             [class.active]="activeTab === 'overdue'"
+             (click)="setActiveTab('overdue')">
+            Overdue
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading assignments...</span>
+      </div>
+      <p class="mt-2">Loading assignments...</p>
+    </div>
+
+    <!-- Assignments Grid -->
+    <div *ngIf="!isLoading" class="assignments-grid">
+      <div *ngIf="getFilteredAssignments().length === 0" class="empty-state text-center">
+        <i class="fas fa-clipboard-check fa-3x text-muted mb-3"></i>
+        <h4>No assignments found</h4>
+        <p class="text-muted">You're all caught up! No assignments in this category.</p>
+      </div>
+
+      <div class="row" *ngIf="getFilteredAssignments().length > 0">
+        <div class="col-lg-6 col-xl-4 mb-4" *ngFor="let assignment of getFilteredAssignments()">
+          <div class="assignment-card">
+            <div class="card-header d-flex justify-content-between align-items-start">
+              <div class="assignment-badges">
+                <span class="badge" [class]="getTypeBadgeClass(assignment.type)">
+                  {{assignment.type | titlecase}}
+                </span>
+                <span class="badge ms-2" [class]="getStatusBadgeClass(assignment)">
+                  {{getStatusText(assignment)}}
+                </span>
+              </div>
+              <div class="priority-indicator" *ngIf="getDaysUntilDue(assignment.dueDate) <= 2 && !isSubmitted(assignment.id)">
+                <i class="fas fa-exclamation-triangle text-warning"></i>
+              </div>
+            </div>
+            
+            <div class="card-body">
+              <h5 class="assignment-title">{{assignment.title}}</h5>
+              <p class="assignment-description">{{assignment.description}}</p>
+              
+              <div class="assignment-meta">
+                <div class="meta-item">
+                  <i class="fas fa-chalkboard me-2"></i>
+                  <span>{{assignment.classroomName}}</span>
+                </div>
+                <div class="meta-item">
+                  <i class="fas fa-calendar me-2"></i>
+                  <span>Due: {{formatDateTime(assignment.dueDate)}}</span>
+                </div>
+                <div class="meta-item">
+                  <i class="fas fa-star me-2"></i>
+                  <span>{{assignment.totalMarks}} points</span>
+                </div>
+                <div class="meta-item" *ngIf="getDaysUntilDue(assignment.dueDate) > 0 && !isSubmitted(assignment.id)">
+                  <i class="fas fa-clock me-2"></i>
+                  <span class="time-remaining" 
+                        [class.text-warning]="getDaysUntilDue(assignment.dueDate) <= 3"
+                        [class.text-danger]="getDaysUntilDue(assignment.dueDate) <= 1">
+                    {{getDaysUntilDue(assignment.dueDate)}} days left
+                  </span>
+                </div>
+              </div>
+
+              <!-- Submission Info -->
+              <div *ngIf="isSubmitted(assignment.id)" class="submission-info mt-3">
+                <div class="submission-card">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <small class="text-muted">Submitted:</small>
+                      <div>{{formatDateTime(getSubmission(assignment.id)?.submittedAt || '')}}</div>
+                    </div>
+                    <div *ngIf="isGraded(assignment.id)" class="grade-display">
+                      <span class="grade-score"
+                            [class.text-success]="(getSubmission(assignment.id)?.score || 0) >= 80"
+                            [class.text-warning]="(getSubmission(assignment.id)?.score || 0) >= 60 && (getSubmission(assignment.id)?.score || 0) < 80"
+                            [class.text-danger]="(getSubmission(assignment.id)?.score || 0) < 60">
+                        {{getSubmission(assignment.id)?.score || getSubmission(assignment.id)?.marks}}
+                      </span>
+                      <small class="text-muted">/{{assignment.totalMarks}}</small>
+                    </div>
+                  </div>
+                  <div *ngIf="getSubmission(assignment.id)?.feedback" class="feedback mt-2">
+                    <small class="text-muted">Feedback:</small>
+                    <p class="feedback-text">{{getSubmission(assignment.id)?.feedback}}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="card-footer">
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="assignment-actions">
+                  <button *ngIf="!isSubmitted(assignment.id) && !isOverdue(assignment.dueDate)" 
+                          class="btn btn-primary btn-sm" 
+                          (click)="openSubmissionModal(assignment)">
+                    <i class="fas fa-upload me-1"></i>Submit
+                  </button>
+                  <button *ngIf="isSubmitted(assignment.id)" 
+                          class="btn btn-outline-info btn-sm" disabled>
+                    <i class="fas fa-check me-1"></i>Submitted
+                  </button>
+                  <button *ngIf="isOverdue(assignment.dueDate) && !isSubmitted(assignment.id)" 
+                          class="btn btn-outline-danger btn-sm" disabled>
+                    <i class="fas fa-clock me-1"></i>Overdue
+                  </button>
+                </div>
+                <div class="due-indicator" *ngIf="!isSubmitted(assignment.id)">
+                  <small [class]="isOverdue(assignment.dueDate) ? 'text-danger' : getDaysUntilDue(assignment.dueDate) <= 2 ? 'text-warning' : 'text-muted'">
+                    {{isOverdue(assignment.dueDate) ? 'Past due' : formatDate(assignment.dueDate)}}
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Assignment Submission Modal -->
+  <div class="modal fade" [class.show]="showSubmissionModal" [style.display]="showSubmissionModal ? 'block' : 'none'" 
+       tabindex="-1" aria-labelledby="submissionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="submissionModalLabel">
+            <i class="fas fa-upload me-2"></i>Submit Assignment
+          </h5>
+          <button type="button" class="btn-close" (click)="closeSubmissionModal()"></button>
+        </div>
+        <div class="modal-body" *ngIf="selectedAssignment">
+          <div class="assignment-details mb-4">
+            <h6>{{selectedAssignment.title}}</h6>
+            <p class="text-muted">{{selectedAssignment.description}}</p>
+            <div class="row">
+              <div class="col-md-6">
+                <small class="text-muted">Due Date:</small>
+                <div>{{formatDateTime(selectedAssignment.dueDate)}}</div>
+              </div>
+              <div class="col-md-6">
+                <small class="text-muted">Total Marks:</small>
+                <div>{{selectedAssignment.totalMarks}} points</div>
+              </div>
+            </div>
+          </div>
+
+          <form (ngSubmit)="submitAssignment()" #submissionForm="ngForm">
+            <div class="mb-3">
+              <label for="content" class="form-label">Your Submission *</label>
+              <textarea class="form-control" id="content" rows="8" 
+                        [(ngModel)]="submissionData.content" name="content" required
+                        placeholder="Write your submission here. Provide detailed answers and explanations..."></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label for="attachment" class="form-label">Attachment (Optional)</label>
+              <input type="url" class="form-control" id="attachment" 
+                     [(ngModel)]="submissionData.attachmentUrl" name="attachment"
+                     placeholder="https://example.com/your-file.pdf">
+              <div class="form-text">Provide a URL to your file (Google Drive, Dropbox, etc.)</div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeSubmissionModal()">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-primary" 
+                  (click)="submitAssignment()" [disabled]="!validateSubmission()">
+            <i class="fas fa-upload me-2"></i>Submit Assignment
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Backdrop -->
+  <div class="modal-backdrop fade" [class.show]="showSubmissionModal" *ngIf="showSubmissionModal"></div>
+</div>

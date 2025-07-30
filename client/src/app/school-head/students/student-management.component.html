@@ -1,0 +1,398 @@
+<div class="student-management">
+  <div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="mb-1"><i class="fas fa-user-graduate me-2"></i>Student Management</h2>
+        <p class="text-muted mb-0">Manage school students and their information</p>
+      </div>
+      <div>
+        <button class="btn btn-success me-2" (click)="showImportForm = true" *ngIf="!showCreateForm && !showImportForm">
+          <i class="fas fa-file-excel me-2"></i>Import from Excel
+        </button>
+        <button class="btn btn-primary" (click)="showCreateForm = true" *ngIf="!showCreateForm && !showImportForm">
+          <i class="fas fa-plus me-2"></i>Add New Student
+        </button>
+      </div>
+    </div>
+
+    <!-- Create Student Form -->
+    <div class="card mb-4" *ngIf="showCreateForm">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Add New Student</h5>
+      </div>
+      <div class="card-body">
+        <form (ngSubmit)="createStudent()" #studentForm="ngForm">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="fullName" class="form-label">Full Name *</label>
+              <input type="text" 
+                     class="form-control" 
+                     id="fullName" 
+                     [(ngModel)]="newStudent.fullName" 
+                     name="fullName" 
+                     required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="username" class="form-label">Username *</label>
+              <input type="text" 
+                     class="form-control" 
+                     id="username" 
+                     [(ngModel)]="newStudent.username" 
+                     name="username" 
+                     required>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="email" class="form-label">Email *</label>
+              <input type="email" 
+                     class="form-control" 
+                     id="email" 
+                     [(ngModel)]="newStudent.email" 
+                     name="email" 
+                     required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="password" class="form-label">Password *</label>
+              <input type="password" 
+                     class="form-control" 
+                     id="password" 
+                     [(ngModel)]="newStudent.password" 
+                     name="password" 
+                     required
+                     placeholder="Enter student password">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="phone" class="form-label">Phone</label>
+              <input type="tel" 
+                     class="form-control" 
+                     id="phone" 
+                     [(ngModel)]="newStudent.phone" 
+                     name="phone">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="grade" class="form-label">Grade/Class *</label>
+              <input type="text" 
+                     class="form-control" 
+                     id="grade" 
+                     [(ngModel)]="newStudent.grade" 
+                     name="grade" 
+                     placeholder="e.g., Grade 10-A"
+                     required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="rollNumber" class="form-label">Roll Number *</label>
+              <input type="text" 
+                     class="form-control" 
+                     id="rollNumber" 
+                     [(ngModel)]="newStudent.rollNumber" 
+                     name="rollNumber" 
+                     required>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="parentName" class="form-label">Parent Name</label>
+              <input type="text" 
+                     class="form-control" 
+                     id="parentName" 
+                     [(ngModel)]="newStudent.parentName" 
+                     name="parentName">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="parentPhone" class="form-label">Parent Phone</label>
+              <input type="tel" 
+                     class="form-control" 
+                     id="parentPhone" 
+                     [(ngModel)]="newStudent.parentPhone" 
+                     name="parentPhone">
+            </div>
+          </div>
+          <div class="row">
+          </div>
+          <div class="d-flex gap-2">
+            <button type="submit" 
+                    class="btn btn-primary" 
+                    [disabled]="!studentForm.form.valid || isLoading">
+              <i class="fas fa-save me-2"></i>
+              {{ isLoading ? 'Creating...' : 'Create Student' }}
+            </button>
+            <button type="button" 
+                    class="btn btn-secondary" 
+                    (click)="showCreateForm = false; resetForm()">
+              <i class="fas fa-times me-2"></i>Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Excel Import Form -->
+    <div class="card mb-4" *ngIf="showImportForm">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-file-excel me-2"></i>Import Students from Excel</h5>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info mb-3">
+          <h6><i class="fas fa-info-circle me-2"></i>Excel File Requirements:</h6>
+          <ul class="mb-0">
+            <li>File must be in .xlsx format</li>
+            <li>Required columns: Full Name, Username, Email, Password, Grade, Roll Number</li>
+            <li>Optional columns: Phone, Parent Name, Parent Phone</li>
+            <li>First row should contain column headers</li>
+          </ul>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="excelFile" class="form-label">Select Excel File *</label>
+              <input type="file" 
+                     class="form-control" 
+                     id="excelFile" 
+                     (change)="onFileSelected($event)"
+                     accept=".xlsx"
+                     #fileInput>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Download Template</label>
+              <br>
+              <button type="button" 
+                      class="btn btn-outline-primary"
+                      (click)="downloadTemplate()">
+                <i class="fas fa-download me-2"></i>Download Excel Template
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="selectedFile" class="alert alert-success">
+          <i class="fas fa-check-circle me-2"></i>
+          Selected file: {{ selectedFile.name }} ({{ (selectedFile.size / 1024) | number:'1.0-0' }} KB)
+        </div>
+
+        <div *ngIf="importResult" class="alert" [ngClass]="{
+          'alert-success': importResult.errorCount === 0,
+          'alert-warning': importResult.errorCount > 0 && importResult.successCount > 0,
+          'alert-danger': importResult.errorCount > 0 && importResult.successCount === 0
+        }">
+          <h6><i class="fas fa-chart-bar me-2"></i>Import Results:</h6>
+          <ul class="mb-0">
+            <li>Successfully imported: {{ importResult.successCount }} students</li>
+            <li>Errors: {{ importResult.errorCount }}</li>
+            <li *ngIf="importResult.errors.length > 0">
+              <strong>Error details:</strong>
+              <ul class="mt-2">
+                <li *ngFor="let error of importResult.errors">
+                  {{ error }}
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="button" 
+                  class="btn btn-success" 
+                  [disabled]="!selectedFile || isImporting"
+                  (click)="importStudents()">
+            <i class="fas fa-upload me-2"></i>
+            {{ isImporting ? 'Importing...' : 'Import Students' }}
+          </button>
+          <button type="button" 
+                  class="btn btn-secondary" 
+                  (click)="showImportForm = false; resetImportForm()">
+            <i class="fas fa-times me-2"></i>Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Students List -->
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-users me-2"></i>Students List ({{ students.length }})</h5>
+      </div>
+      <div class="card-body">
+        <div *ngIf="isLoading" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-2 text-muted">Loading students...</p>
+        </div>
+
+        <div *ngIf="!isLoading && students.length === 0" class="text-center py-5">
+          <i class="fas fa-user-graduate fa-3x text-muted mb-3"></i>
+          <h5>No Students Found</h5>
+          <p class="text-muted">Start by adding your first student</p>
+        </div>
+
+        <div *ngIf="!isLoading && students.length > 0" class="table-responsive">
+          <table class="table table-hover">
+            <thead class="table-light">
+              <tr>
+                <th>Student</th>
+                <th>Contact</th>
+                <th>Grade</th>
+                <th>Roll No.</th>
+                <th>Parent Info</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let student of students">
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div class="avatar-circle me-3">
+                      {{ student.fullName.charAt(0).toUpperCase() }}
+                    </div>
+                    <div>
+                      <div class="fw-semibold">{{ student.fullName }}</div>
+                      <div class="text-muted small">{{ student.username }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    <div class="small"><i class="fas fa-envelope me-1"></i>{{ student.email }}</div>
+                    <div class="small text-muted"><i class="fas fa-phone me-1"></i>{{ student.phone || 'N/A' }}</div>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge" [class]="getClassBadgeColor(student.grade)">{{ student.grade }}</span>
+                </td>
+                <td>
+                  <span class="badge bg-secondary">{{ student.rollNumber }}</span>
+                </td>
+                <td>
+                  <div class="small">
+                    <div><strong>{{ student.parentName || 'N/A' }}</strong></div>
+                    <div class="text-muted">{{ student.parentPhone || 'N/A' }}</div>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge" [class]="getStatusBadgeClass(student.isActive)">
+                    {{ student.isActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                <td>
+                  <div class="btn-group btn-group-sm" role="group">
+                    <button class="btn btn-outline-primary" 
+                            (click)="editStudent(student)"
+                            title="Edit">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-outline-warning" 
+                            (click)="toggleStudentStatus(student)"
+                            [title]="student.isActive ? 'Deactivate' : 'Activate'">
+                      <i class="fas" [class.fa-pause]="student.isActive" [class.fa-play]="!student.isActive"></i>
+                    </button>
+                    <button class="btn btn-outline-danger" 
+                            (click)="deleteStudent(student)"
+                            title="Delete">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Student Modal -->
+    <div class="modal fade show d-block" style="background: rgba(0,0,0,0.5);" *ngIf="selectedStudent">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Edit Student</h5>
+            <button type="button" class="btn-close" (click)="cancelEdit()"></button>
+          </div>
+          <div class="modal-body">
+            <form #editForm="ngForm">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="editFullName" class="form-label">Full Name</label>
+                  <input type="text" 
+                         class="form-control" 
+                         id="editFullName" 
+                         [(ngModel)]="selectedStudent.fullName" 
+                         name="editFullName" 
+                         required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="editEmail" class="form-label">Email</label>
+                  <input type="email" 
+                         class="form-control" 
+                         id="editEmail" 
+                         [(ngModel)]="selectedStudent.email" 
+                         name="editEmail" 
+                         required>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="editPhone" class="form-label">Phone</label>
+                  <input type="tel" 
+                         class="form-control" 
+                         id="editPhone" 
+                         [(ngModel)]="selectedStudent.phone" 
+                         name="editPhone">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="editGrade" class="form-label">Grade</label>
+                  <input type="text" 
+                         class="form-control" 
+                         id="editGrade" 
+                         [(ngModel)]="selectedStudent.grade" 
+                         name="editGrade" 
+                         required>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="editParentName" class="form-label">Parent Name</label>
+                  <input type="text" 
+                         class="form-control" 
+                         id="editParentName" 
+                         [(ngModel)]="selectedStudent.parentName" 
+                         name="editParentName">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="editParentPhone" class="form-label">Parent Phone</label>
+                  <input type="tel" 
+                         class="form-control" 
+                         id="editParentPhone" 
+                         [(ngModel)]="selectedStudent.parentPhone" 
+                         name="editParentPhone">
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" 
+                    class="btn btn-secondary" 
+                    (click)="cancelEdit()">
+              Cancel
+            </button>
+            <button type="button" 
+                    class="btn btn-primary" 
+                    (click)="saveStudent()"
+                    [disabled]="!selectedStudent.fullName || !selectedStudent.email">
+              <i class="fas fa-save me-2"></i>Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

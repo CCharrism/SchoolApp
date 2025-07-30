@@ -1,0 +1,81 @@
+/* You can add global styles to this file, and also import other style files */
+/* Override toastr error toast */
+.toast-error {
+  background-color: #92DE8B !important;
+  color: white !important;
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 10px rgba(146, 222, 139, 0.5);
+}
+
+/* Toast title */
+.toast-error .toast-title {
+  font-weight: 600;
+  color: white !important;
+}
+
+/* Toast message */
+.toast-error .toast-message {
+  color: white !important;
+}
+
+/* Close button */
+.toast-error .toast-close-button {
+  color: white !important;
+  opacity: 0.8;
+}
+
+.toast-error .toast-close-button:hover {
+  opacity: 1;
+}
+
+/* Progress bar with white or transparent */
+.toast-error .toast-progress {
+  background-color: white !important;
+}
+
+.toast-success,
+.toast-error,
+.toast-info,
+.toast-warning {
+  background-color: #92DE8B !important;
+  color: white !important;
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 10px rgba(146, 222, 139, 0.5);
+}
+
+.toast-success .toast-title,
+.toast-error .toast-title,
+.toast-info .toast-title,
+.toast-warning .toast-title {
+  font-weight: 600;
+  color: white !important;
+}
+
+.toast-success .toast-message,
+.toast-error .toast-message,
+.toast-info .toast-message,
+.toast-warning .toast-message {
+  color: white !important;
+}
+
+.toast-success .toast-close-button,
+.toast-error .toast-close-button,
+.toast-info .toast-close-button,
+.toast-warning .toast-close-button {
+  color: white !important;
+  opacity: 0.8;
+}
+
+.toast-success .toast-close-button:hover,
+.toast-error .toast-close-button:hover,
+.toast-info .toast-close-button:hover,
+.toast-warning .toast-close-button:hover {
+  opacity: 1;
+}
+
+.toast-success .toast-progress,
+.toast-error .toast-progress,
+.toast-info .toast-progress,
+.toast-warning .toast-progress {
+  background-color: white !important;
+}

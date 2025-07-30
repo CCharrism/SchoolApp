@@ -1,0 +1,272 @@
+<div class="teacher-management">
+  <div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="mb-1"><i class="fas fa-chalkboard-teacher me-2"></i>Teacher Management</h2>
+        <p class="text-muted mb-0">Manage school teachers and their information</p>
+      </div>
+      <button class="btn btn-primary" (click)="showCreateForm = true" *ngIf="!showCreateForm">
+        <i class="fas fa-plus me-2"></i>Add New Teacher
+      </button>
+    </div>
+
+    <!-- Create Teacher Form -->
+    <div class="card mb-4" *ngIf="showCreateForm">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Add New Teacher</h5>
+      </div>
+      <div class="card-body">
+        <form (ngSubmit)="createTeacher()" #teacherForm="ngForm">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="fullName" class="form-label">Full Name *</label>
+              <input type="text" 
+                     class="form-control" 
+                     id="fullName" 
+                     [(ngModel)]="newTeacher.fullName" 
+                     name="fullName" 
+                     required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="username" class="form-label">Username *</label>
+              <input type="text" 
+                     class="form-control" 
+                     id="username" 
+                     [(ngModel)]="newTeacher.username" 
+                     name="username" 
+                     required>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="email" class="form-label">Email *</label>
+              <input type="email" 
+                     class="form-control" 
+                     id="email" 
+                     [(ngModel)]="newTeacher.email" 
+                     name="email" 
+                     required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="phone" class="form-label">Phone</label>
+              <input type="tel" 
+                     class="form-control" 
+                     id="phone" 
+                     [(ngModel)]="newTeacher.phone" 
+                     name="phone">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="subject" class="form-label">Subject *</label>
+              <input type="text" 
+                     class="form-control" 
+                     id="subject" 
+                     [(ngModel)]="newTeacher.subject" 
+                     name="subject" 
+                     placeholder="e.g., Mathematics, English"
+                     required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="qualification" class="form-label">Qualification</label>
+              <input type="text" 
+                     class="form-control" 
+                     id="qualification" 
+                     [(ngModel)]="newTeacher.qualification" 
+                     name="qualification" 
+                     placeholder="e.g., M.Sc Mathematics">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="password" class="form-label">Password *</label>
+              <input type="password" 
+                     class="form-control" 
+                     id="password" 
+                     [(ngModel)]="newTeacher.password" 
+                     name="password" 
+                     required>
+            </div>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="submit" 
+                    class="btn btn-primary" 
+                    [disabled]="!teacherForm.form.valid || isLoading">
+              <i class="fas fa-save me-2"></i>
+              {{ isLoading ? 'Creating...' : 'Create Teacher' }}
+            </button>
+            <button type="button" 
+                    class="btn btn-secondary" 
+                    (click)="showCreateForm = false; resetForm()">
+              <i class="fas fa-times me-2"></i>Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Teachers List -->
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-users me-2"></i>Teachers List ({{ teachers.length }})</h5>
+      </div>
+      <div class="card-body">
+        <div *ngIf="isLoading" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-2 text-muted">Loading teachers...</p>
+        </div>
+
+        <div *ngIf="!isLoading && teachers.length === 0" class="text-center py-5">
+          <i class="fas fa-users fa-3x text-muted mb-3"></i>
+          <h5>No Teachers Found</h5>
+          <p class="text-muted">Start by adding your first teacher</p>
+        </div>
+
+        <div *ngIf="!isLoading && teachers.length > 0" class="table-responsive">
+          <table class="table table-hover">
+            <thead class="table-light">
+              <tr>
+                <th>Teacher</th>
+                <th>Contact</th>
+                <th>Subject</th>
+                <th>Qualification</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let teacher of teachers">
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div class="avatar-circle me-3">
+                      {{ teacher.fullName.charAt(0).toUpperCase() }}
+                    </div>
+                    <div>
+                      <div class="fw-semibold">{{ teacher.fullName }}</div>
+                      <div class="text-muted small">{{ teacher.username }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    <div class="small"><i class="fas fa-envelope me-1"></i>{{ teacher.email }}</div>
+                    <div class="small text-muted"><i class="fas fa-phone me-1"></i>{{ teacher.phone || 'N/A' }}</div>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge bg-primary">{{ teacher.subject }}</span>
+                </td>
+                <td>
+                  <span class="text-muted">{{ teacher.qualification || 'N/A' }}</span>
+                </td>
+                <td>
+                  <span class="badge" [class]="getStatusBadgeClass(teacher.isActive)">
+                    {{ teacher.isActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                <td>
+                  <span class="text-muted small">{{ formatDate(teacher.createdAt) }}</span>
+                </td>
+                <td>
+                  <div class="btn-group btn-group-sm" role="group">
+                    <button class="btn btn-outline-primary" 
+                            (click)="editTeacher(teacher)"
+                            title="Edit">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-outline-warning" 
+                            (click)="toggleTeacherStatus(teacher)"
+                            [title]="teacher.isActive ? 'Deactivate' : 'Activate'">
+                      <i class="fas" [class.fa-pause]="teacher.isActive" [class.fa-play]="!teacher.isActive"></i>
+                    </button>
+                    <button class="btn btn-outline-danger" 
+                            (click)="deleteTeacher(teacher)"
+                            title="Delete">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Teacher Modal -->
+    <div class="modal fade show d-block" style="background: rgba(0,0,0,0.5);" *ngIf="selectedTeacher">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Edit Teacher</h5>
+            <button type="button" class="btn-close" (click)="cancelEdit()"></button>
+          </div>
+          <div class="modal-body">
+            <form #editForm="ngForm">
+              <div class="mb-3">
+                <label for="editFullName" class="form-label">Full Name</label>
+                <input type="text" 
+                       class="form-control" 
+                       id="editFullName" 
+                       [(ngModel)]="selectedTeacher.fullName" 
+                       name="editFullName" 
+                       required>
+              </div>
+              <div class="mb-3">
+                <label for="editEmail" class="form-label">Email</label>
+                <input type="email" 
+                       class="form-control" 
+                       id="editEmail" 
+                       [(ngModel)]="selectedTeacher.email" 
+                       name="editEmail" 
+                       required>
+              </div>
+              <div class="mb-3">
+                <label for="editPhone" class="form-label">Phone</label>
+                <input type="tel" 
+                       class="form-control" 
+                       id="editPhone" 
+                       [(ngModel)]="selectedTeacher.phone" 
+                       name="editPhone">
+              </div>
+              <div class="mb-3">
+                <label for="editSubject" class="form-label">Subject</label>
+                <input type="text" 
+                       class="form-control" 
+                       id="editSubject" 
+                       [(ngModel)]="selectedTeacher.subject" 
+                       name="editSubject" 
+                       required>
+              </div>
+              <div class="mb-3">
+                <label for="editQualification" class="form-label">Qualification</label>
+                <input type="text" 
+                       class="form-control" 
+                       id="editQualification" 
+                       [(ngModel)]="selectedTeacher.qualification" 
+                       name="editQualification">
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" 
+                    class="btn btn-secondary" 
+                    (click)="cancelEdit()">
+              Cancel
+            </button>
+            <button type="button" 
+                    class="btn btn-primary" 
+                    (click)="saveTeacher()"
+                    [disabled]="!selectedTeacher.fullName || !selectedTeacher.email">
+              <i class="fas fa-save me-2"></i>Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

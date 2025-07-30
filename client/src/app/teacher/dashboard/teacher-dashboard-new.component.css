@@ -1,0 +1,206 @@
+/* Teacher Dashboard Styles */
+.teacher-dashboard {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+/* Navigation Logo Styles */
+.navbar-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Navbar Theming */
+.navbar {
+  background: var(--primary-color, #92DE8B) !important;
+  transition: background-color 0.3s ease;
+}
+
+.navbar-brand {
+  color: white !important;
+}
+
+.navbar .nav-link {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.navbar .nav-link:hover {
+  color: white !important;
+}
+
+/* Sidebar Styles */
+.sidebar-layout .sidebar {
+  background: var(--primary-color, #92DE8B);
+  min-height: calc(100vh - 76px);
+  box-shadow: 2px 0 10px rgba(146, 222, 139, 0.1);
+  border-right: none;
+  position: sticky;
+  top: 76px;
+}
+
+.sidebar .nav-link {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  border-radius: 6px;
+  margin: 2px 8px;
+  transition: all 0.3s ease;
+}
+
+.sidebar .nav-link:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  transform: translateX(5px);
+}
+
+.sidebar .nav-link.active {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* User Info Card */
+.user-info-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.teacher-avatar-container {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.teacher-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Classroom Cards */
+.classroom-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.classroom-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.classroom-header {
+  padding: 1.5rem;
+  border: none;
+}
+
+/* Stats Cards */
+.card {
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Button Styles */
+.btn-primary {
+  background: var(--primary-color, #92DE8B);
+  border-color: var(--primary-color, #92DE8B);
+}
+
+.btn-primary:hover {
+  background: #7bc974;
+  border-color: #7bc974;
+}
+
+.btn-outline-primary {
+  color: var(--primary-color, #92DE8B);
+  border-color: var(--primary-color, #92DE8B);
+}
+
+.btn-outline-primary:hover {
+  background: var(--primary-color, #92DE8B);
+  border-color: var(--primary-color, #92DE8B);
+}
+
+/* Modal Styles */
+.modal-content {
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  border-bottom: 1px solid #e9ecef;
+  padding: 1.5rem;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  border-top: 1px solid #e9ecef;
+  padding: 1.5rem;
+}
+
+/* Form Styles */
+.form-control:focus {
+  border-color: var(--primary-color, #92DE8B);
+  box-shadow: 0 0 0 0.2rem rgba(146, 222, 139, 0.25);
+}
+
+/* Loading Animation */
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed !important;
+    top: 76px;
+    left: -100%;
+    width: 80%;
+    height: calc(100vh - 76px);
+    z-index: 1040;
+    transition: left 0.3s ease;
+  }
+
+  .sidebar.show {
+    left: 0;
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+}
+
+/* Text Colors */
+.text-primary {
+  color: var(--primary-color, #92DE8B) !important;
+}
+
+/* Badge Styles */
+.badge {
+  font-size: 0.75em;
+  font-weight: 500;
+}
+
+/* Announcement Styles */
+.announcement-item {
+  padding: 1rem;
+  background: rgba(146, 222, 139, 0.05);
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-color, #92DE8B);
+}

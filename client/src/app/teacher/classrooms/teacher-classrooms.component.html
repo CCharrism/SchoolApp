@@ -1,0 +1,257 @@
+<div class="teacher-classrooms">
+  <div class="container-fluid">
+    <!-- Header -->
+    <div class="classrooms-header d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2><i class="fas fa-chalkboard me-2"></i>My Classrooms</h2>
+        <p class="text-muted">Manage your classrooms and students</p>
+      </div>
+      <button class="btn btn-primary" (click)="openCreateModal()">
+        <i class="fas fa-plus me-2"></i>Create Classroom
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading classrooms...</span>
+      </div>
+      <p class="mt-2">Loading classrooms...</p>
+    </div>
+
+    <!-- Classrooms Grid -->
+    <div *ngIf="!isLoading" class="classrooms-grid">
+      <div *ngIf="classrooms.length === 0" class="empty-state text-center">
+        <i class="fas fa-chalkboard fa-3x text-muted mb-3"></i>
+        <h4>No classrooms found</h4>
+        <p class="text-muted">Create your first classroom to get started!</p>
+        <button class="btn btn-primary" (click)="openCreateModal()">
+          <i class="fas fa-plus me-2"></i>Create Classroom
+        </button>
+      </div>
+
+      <div class="row" *ngIf="classrooms.length > 0">
+        <div class="col-lg-4 col-md-6 mb-4" *ngFor="let classroom of classrooms">
+          <div class="classroom-card">
+            <div class="card-header d-flex justify-content-between align-items-start">
+              <div class="classroom-info flex-grow-1">
+                <span class="badge" [class]="'bg-' + getGradeColor(classroom.grade)">
+                  Grade {{classroom.grade}}
+                </span>
+                <span class="badge bg-secondary ms-2">{{classroom.subject}}</span>
+              </div>
+              <div class="dropdown">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" 
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i>Edit</a></li>
+                  <li><a class="dropdown-item" (click)="viewStudents(classroom)">
+                    <i class="fas fa-users me-2"></i>View Students</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fas fa-chart-bar me-2"></i>Analytics</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item text-danger" (click)="deleteClassroom(classroom.id)">
+                    <i class="fas fa-trash me-2"></i>Delete</a></li>
+                </ul>
+              </div>
+            </div>
+            
+            <div class="card-body">
+              <h5 class="classroom-title">{{classroom.name}}</h5>
+              <p class="classroom-description">{{classroom.description}}</p>
+              
+              <div class="classroom-meta">
+                <div class="meta-item">
+                  <i class="fas fa-user-tie me-2"></i>
+                  <span>{{classroom.teacherName}}</span>
+                </div>
+                <div class="meta-item">
+                  <i class="fas fa-users me-2"></i>
+                  <span>{{classroom.studentCount}} Students</span>
+                </div>
+                <div class="meta-item">
+                  <i class="fas fa-calendar me-2"></i>
+                  <span>Created: {{formatDate(classroom.createdAt)}}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="card-footer">
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="status-indicator">
+                  <span class="badge" [class]="classroom.isActive ? 'bg-success' : 'bg-secondary'">
+                    {{classroom.isActive ? 'Active' : 'Inactive'}}
+                  </span>
+                </div>
+                <div class="action-buttons">
+                  <button class="btn btn-sm btn-outline-primary me-2" (click)="viewStudents(classroom)">
+                    <i class="fas fa-users me-1"></i>Students
+                  </button>
+                  <button class="btn btn-sm btn-outline-success">
+                    <i class="fas fa-chart-line me-1"></i>Stats
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Classroom Modal -->
+  <div class="modal fade" [class.show]="showCreateModal" [style.display]="showCreateModal ? 'block' : 'none'" 
+       tabindex="-1" aria-labelledby="createClassroomModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createClassroomModalLabel">
+            <i class="fas fa-plus-circle me-2"></i>Create New Classroom
+          </h5>
+          <button type="button" class="btn-close" (click)="closeCreateModal()"></button>
+        </div>
+        <div class="modal-body">
+          <form (ngSubmit)="createClassroom()" #classroomForm="ngForm">
+            <div class="row">
+              <div class="col-md-8 mb-3">
+                <label for="name" class="form-label">Classroom Name *</label>
+                <input type="text" class="form-control" id="name" 
+                       [(ngModel)]="newClassroom.name" name="name" required
+                       placeholder="e.g., Mathematics Grade 10">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="grade" class="form-label">Grade *</label>
+                <select class="form-select" id="grade" 
+                        [(ngModel)]="newClassroom.grade" name="grade" required>
+                  <option value="">Select Grade</option>
+                  <option value="1">Grade 1</option>
+                  <option value="2">Grade 2</option>
+                  <option value="3">Grade 3</option>
+                  <option value="4">Grade 4</option>
+                  <option value="5">Grade 5</option>
+                  <option value="6">Grade 6</option>
+                  <option value="7">Grade 7</option>
+                  <option value="8">Grade 8</option>
+                  <option value="9">Grade 9</option>
+                  <option value="10">Grade 10</option>
+                  <option value="11">Grade 11</option>
+                  <option value="12">Grade 12</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="subject" class="form-label">Subject *</label>
+              <select class="form-select" id="subject" 
+                      [(ngModel)]="newClassroom.subject" name="subject" required>
+                <option value="">Select Subject</option>
+                <option value="Mathematics">Mathematics</option>
+                <option value="English">English</option>
+                <option value="Science">Science</option>
+                <option value="Physics">Physics</option>
+                <option value="Chemistry">Chemistry</option>
+                <option value="Biology">Biology</option>
+                <option value="History">History</option>
+                <option value="Geography">Geography</option>
+                <option value="Computer Science">Computer Science</option>
+                <option value="Art">Art</option>
+                <option value="Physical Education">Physical Education</option>
+                <option value="Music">Music</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label">Description *</label>
+              <textarea class="form-control" id="description" rows="3" 
+                        [(ngModel)]="newClassroom.description" name="description" required
+                        placeholder="Describe the classroom, learning objectives, or any important notes..."></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeCreateModal()">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-primary" 
+                  (click)="createClassroom()" [disabled]="!validateForm()">
+            <i class="fas fa-save me-2"></i>Create Classroom
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Students Modal -->
+  <div class="modal fade" [class.show]="showStudentsModal" [style.display]="showStudentsModal ? 'block' : 'none'" 
+       tabindex="-1" aria-labelledby="studentsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="studentsModalLabel">
+            <i class="fas fa-users me-2"></i>Students in {{selectedClassroom?.name}}
+          </h5>
+          <button type="button" class="btn-close" (click)="closeStudentsModal()"></button>
+        </div>
+        <div class="modal-body">
+          <div *ngIf="students.length === 0" class="text-center text-muted py-4">
+            <i class="fas fa-user-plus fa-3x mb-3"></i>
+            <h5>No students enrolled</h5>
+            <p>Students will appear here once they are assigned to this classroom.</p>
+          </div>
+          
+          <div *ngIf="students.length > 0" class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-dark">
+                <tr>
+                  <th>Roll Number</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Grade</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let student of students">
+                  <td><strong>{{student.rollNumber}}</strong></td>
+                  <td>{{student.fullName}}</td>
+                  <td>{{student.email}}</td>
+                  <td>{{student.phone}}</td>
+                  <td>
+                    <span class="badge" [class]="'bg-' + getGradeColor(student.grade)">
+                      Grade {{student.grade}}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge" [class]="student.isActive ? 'bg-success' : 'bg-secondary'">
+                      {{student.isActive ? 'Active' : 'Inactive'}}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary me-1">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-success">
+                      <i class="fas fa-chart-line"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeStudentsModal()">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Backdrop -->
+  <div class="modal-backdrop fade" [class.show]="showCreateModal || showStudentsModal" 
+       *ngIf="showCreateModal || showStudentsModal"></div>
+</div>

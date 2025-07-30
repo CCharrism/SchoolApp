@@ -1,0 +1,164 @@
+<style>
+  app-background {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0;
+  }
+
+  .page-container {
+    position: relative;
+    min-height: 100vh;
+    z-index: 1;
+    /* Remove any bg-white or background color here */
+    background: transparent;
+    /* Flex centering */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
+
+
+
+<!-- Remove bg-white here -->
+ <app-background></app-background>
+
+
+<div class="page-container">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-5 col-md-7">
+        <!-- This is the only white background block -->
+        <div class="card shadow bg-white border-0">
+          <div class="card-body p-5">
+
+           <!-- Simple & Elegant Logo and Title -->
+<div class="logo-title-container text-center mb-4">
+  <i class="fas fa-graduation-cap"></i>
+  <h2>School Management</h2>
+</div>
+
+<style>
+  .logo-title-container {
+    max-width: 280px;
+    margin: 0 auto 2rem;
+    padding: 1.5rem 1rem;
+  }
+
+  .logo-title-container i {
+    font-size: 3.5rem;
+    color: #4CAF50; /* Soft green */
+    display: block;
+    margin: 0 auto 0.5rem auto;
+  }
+
+  .logo-title-container h2 {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 600;
+    font-size: 1.8rem;
+    color: #333333;
+    margin: 0;
+    letter-spacing: 0.03em;
+  }
+
+  /* Light subtle shadow on hover (optional) */
+  .logo-title-container:hover h2 {
+    color: #2e7d32;
+  }
+</style>
+
+
+
+
+
+
+            <!-- Login Form -->
+            <form (ngSubmit)="onSubmit()" #loginForm="ngForm" novalidate>
+              <div class="mb-4">
+                <label for="username" class="form-label fw-semibold text-dark">
+                  <i class="fas fa-user me-2" style="color: #92DE8B;"></i>Username
+                </label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  class="form-control form-control-lg shadow-sm rounded-3 bg-white border"
+                  placeholder="Enter your username"
+                  [(ngModel)]="credentials.username"
+                  required
+                />
+              </div>
+
+              <div class="mb-4">
+                <label for="password" class="form-label fw-semibold text-dark">
+                  <i class="fas fa-lock me-2" style="color: #92DE8B;"></i>Password
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  class="form-control form-control-lg shadow-sm rounded-3 bg-white border"
+                  placeholder="Enter your password"
+                  [(ngModel)]="credentials.password"
+                  required
+                />
+              </div>
+
+              <div class="d-grid mb-4">
+                <button
+                  type="submit"
+                  class="btn btn-light btn-lg fw-semibold text-dark rounded-3 border"
+                  [disabled]="isLoading"
+                  [class.custom-btn-hover]="!isLoading"
+                >
+                  <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2 text-success" role="status"></span>
+                  <i *ngIf="!isLoading" class="fas fa-sign-in-alt me-2" style="color: #92DE8B;"></i>
+                  {{ isLoading ? 'Signing In...' : 'Sign In' }}
+                </button>
+              </div>
+            </form>
+
+            <!-- JWT Debug Buttons (only show if authenticated) -->
+            <div *ngIf="authService.isAuthenticated()" class="mt-3">
+              <div class="d-grid gap-2">
+                <button 
+                  type="button" 
+                  class="btn btn-outline-success btn-sm" 
+                  (click)="checkSessionStorage()">
+                  🔍 Check SessionStorage
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-outline-primary btn-sm" 
+                  (click)="testJwtAuth()">
+                  🔍 Test JWT Auth
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-outline-info btn-sm" 
+                  (click)="decodeJwtToken()">
+                  🔍 Decode JWT Token
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-outline-secondary btn-sm" 
+                  (click)="testHeaders()">
+                  🔍 Test Headers
+                </button>
+              </div>
+            </div>
+
+           
+
+          </div>
+        </div>
+
+        <div class="text-center mt-4">
+          <p class="text-muted mb-0">
+            &copy; 2025 School Management System. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

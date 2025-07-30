@@ -1,0 +1,249 @@
+<div class="branches-management">
+ 
+
+  <!-- Header Section -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h4 class="fw-bold text-success mb-1">
+        <i class="fas fa-code-branch me-2"></i>
+        Branch Management
+      </h4>
+      <p class="text-muted mb-0">Create and manage school branches with dedicated heads</p>
+    </div>
+    <button class="btn btn-success" (click)="toggleCreateForm()" [disabled]="isLoading">
+      <i class="fas fa-plus me-2"></i>
+      {{ showCreateForm ? 'Cancel' : 'Add Branch' }}
+    </button>
+  </div>
+
+  <!-- Success/Error Messages -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="fas fa-check-circle me-2"></i>
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-circle me-2"></i>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Create Branch Form -->
+  <div *ngIf="showCreateForm" class="card shadow-sm border-0 mb-4">
+    <div class="card-header" style="background: linear-gradient(135deg, #92DE8B 0%, #ffffff 100%); border: none;">
+      <h5 class="card-title mb-0 text-dark">
+        <i class="fas fa-plus me-2"></i>
+        Create New Branch
+      </h5>
+    </div>
+    <div class="card-body">
+      <form (ngSubmit)="createBranch()" #branchForm="ngForm">
+        <div class="row">
+          <!-- Branch Information -->
+          <div class="col-md-6">
+            <h6 class="text-muted mb-3">
+              <i class="fas fa-info-circle me-2"></i>
+              Branch Information
+            </h6>
+            
+            <div class="mb-3">
+              <label for="branchName" class="form-label">Branch Name *</label>
+              <input type="text" 
+                     class="form-control" 
+                     id="branchName"
+                     [(ngModel)]="newBranch.branchName" 
+                     name="branchName"
+                     required
+                     placeholder="Enter branch name">
+            </div>
+
+            <div class="mb-3">
+              <label for="location" class="form-label">Location</label>
+              <input type="text" 
+                     class="form-control" 
+                     id="location"
+                     [(ngModel)]="newBranch.location" 
+                     name="location"
+                     placeholder="Enter branch location">
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea class="form-control" 
+                        id="description"
+                        [(ngModel)]="newBranch.description" 
+                        name="description"
+                        rows="3"
+                        placeholder="Enter branch description"></textarea>
+            </div>
+          </div>
+
+          <!-- School Head Information -->
+          <div class="col-md-6">
+            <h6 class="text-muted mb-3">
+              <i class="fas fa-user-tie me-2"></i>
+              School Head Account
+            </h6>
+            
+            <div class="mb-3">
+              <label for="schoolHeadUsername" class="form-label">Username *</label>
+              <input type="text" 
+                     class="form-control" 
+                     id="schoolHeadUsername"
+                     [(ngModel)]="newBranch.schoolHeadUsername" 
+                     name="schoolHeadUsername"
+                     required
+                     placeholder="Enter username for school head">
+              <div class="form-text">This will be used by the school head to login</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="schoolHeadPassword" class="form-label">Password *</label>
+              <input type="password" 
+                     class="form-control" 
+                     id="schoolHeadPassword"
+                     [(ngModel)]="newBranch.schoolHeadPassword" 
+                     name="schoolHeadPassword"
+                     required
+                     placeholder="Enter password for school head">
+              <div class="form-text">Minimum 6 characters required</div>
+            </div>
+
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i>
+              <small>
+                The school head will be able to login and manage courses for this branch.
+                They will inherit the same theme settings as your school.
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+          <button type="button" class="btn btn-secondary" (click)="toggleCreateForm()" [disabled]="isLoading">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-success" [disabled]="isLoading || branchForm.invalid">
+            <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+            <i *ngIf="!isLoading" class="fas fa-plus me-2"></i>
+            {{ isLoading ? 'Creating...' : 'Create Branch' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Branches List -->
+  <div class="card shadow-sm border-0">
+    <div class="card-header" style="background: linear-gradient(135deg, #92DE8B 0%, #ffffff 100%); border: none;">
+      <h5 class="card-title mb-0 text-dark">
+        <i class="fas fa-list me-2"></i>
+        Existing Branches ({{ branches.length }})
+      </h5>
+    </div>
+    <div class="card-body">
+      <!-- Loading State -->
+      <div *ngIf="isLoading && branches.length === 0" class="text-center py-4">
+        <div class="spinner-border text-success" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="text-muted mt-2">Loading branches...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!isLoading && branches.length === 0" class="text-center py-5">
+        <i class="fas fa-code-branch fa-3x mb-3 text-muted"></i>
+        <h5 class="text-muted">No Branches Created Yet</h5>
+        <p class="text-muted">Create your first branch to start managing multiple locations</p>
+        <button class="btn btn-success" (click)="toggleCreateForm()">
+          <i class="fas fa-plus me-2"></i>
+          Create First Branch
+        </button>
+      </div>
+
+      <!-- Branches Grid -->
+      <div *ngIf="branches.length > 0" class="row">
+        <div class="col-lg-6 col-xl-4 mb-4" *ngFor="let branch of branches">
+          <div class="card h-100 branch-card" [class.inactive]="!branch.isActive">
+            <div class="card-body">
+              <!-- Branch Header -->
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="flex-grow-1">
+                  <h6 class="card-title mb-1 fw-bold">{{ branch.branchName }}</h6>
+                  <small class="text-muted">
+                    <i class="fas fa-map-marker-alt me-1"></i>
+                    {{ branch.location || 'No location specified' }}
+                  </small>
+                </div>
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                          type="button" 
+                          data-bs-toggle="dropdown">
+                    <i class="fas fa-ellipsis-v"></i>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                      <button class="dropdown-item" (click)="toggleBranchStatus(branch)">
+                        <i class="fas" [class.fa-eye]="!branch.isActive" [class.fa-eye-slash]="branch.isActive" class="me-2"></i>
+                        {{ branch.isActive ? 'Deactivate' : 'Activate' }}
+                      </button>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <button class="dropdown-item text-danger" (click)="deleteBranch(branch)">
+                        <i class="fas fa-trash me-2"></i>
+                        Delete
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Branch Description -->
+              <p class="card-text text-muted small mb-3" *ngIf="branch.description">
+                {{ branch.description }}
+              </p>
+
+              <!-- Branch Stats -->
+              <div class="row text-center mb-3">
+                <div class="col-6">
+                  <div class="border-end">
+                    <div class="h6 mb-0 text-success">{{ branch.courseCount }}</div>
+                    <small class="text-muted">Courses</small>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="h6 mb-0 text-success">
+                    <span class="badge" [class.bg-success]="branch.isActive" [class.bg-secondary]="!branch.isActive">
+                      {{ branch.isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                  </div>
+                  <small class="text-muted">Status</small>
+                </div>
+              </div>
+
+              <!-- School Head Info -->
+              <div class="border-top pt-3">
+                <div class="d-flex align-items-center">
+                  <div class="me-2">
+                    <i class="fas fa-user-tie text-muted"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold small">School Head</div>
+                    <div class="text-muted small">{{ branch.schoolHeadUsername }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Creation Date -->
+              <div class="mt-2 text-end">
+                <small class="text-muted">
+                  Created {{ branch.createdAt | date:'short' }}
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

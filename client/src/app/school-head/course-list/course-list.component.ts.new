@@ -1,0 +1,111 @@
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { CoursesService } from '../../services/courses.service';
+import { Subscription } from 'rxjs';
+
+interface Course {
+  id: number;
+  courseName: string;
+  description: string;
+  thumbnailImageUrl?: string;
+  branchId: number;
+  branchName: string;
+  createdBy: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt?: string;
+  lessonCount: number;
+}
+
+@Component({
+  selector: 'app-course-list',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  templateUrl: './course-list.component.html',
+  styleUrls: ['./course-list.component.css']
+})
+export class CourseListComponent implements OnInit, OnDestroy {
+  courses: Course[] = [];
+  isLoading = false;
+  errorMessage = '';
+  
+  private subscriptions: Subscription[] = [];
+
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private coursesService: CoursesService
+  ) {
+    console.log('CourseListComponent: Constructor called');
+  }
+
+  ngOnInit() {
+    console.log('CourseListComponent: ngOnInit called');
+    
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    // Subscribe to all service observables
+    this.subscriptions.push(
+      this.coursesService.courses$.subscribe(courses => {
+        console.log('CourseListComponent: Courses updated', courses.length);
+        this.courses = courses;
+      }),
+      
+      this.coursesService.loading$.subscribe(loading => {
+        console.log('CourseListComponent: Loading state changed', loading);
+        this.isLoading = loading;
+      }),
+      
+      this.coursesService.error$.subscribe(error => {
+        console.log('CourseListComponent: Error state changed', error);
+        this.errorMessage = error;
+      })
+    );
+
+    // Trigger initial load
+    console.log('CourseListComponent: Triggering initial load');
+    this.coursesService.loadCourses();
+  }
+
+  ngOnDestroy() {
+    console.log('CourseListComponent: ngOnDestroy called');
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  refreshCourses() {
+    console.log('CourseListComponent: Manual refresh triggered');
+    this.coursesService.loadCourses(true);
+  }
+
+  toggleCourseStatus(course: Course) {
+    // For now, just toggle locally - implement API call later if needed
+    course.isActive = !course.isActive;
+  }
+
+  deleteCourse(course: Course) {
+    if (!confirm(`Are you sure you want to delete the course "${course.courseName}"?`)) {
+      return;
+    }
+    
+    // For now, just remove locally - implement API call later if needed
+    this.courses = this.courses.filter(c => c.id !== course.id);
+  }
+
+  formatDate(dateString: string): string {
+    return new Date(dateString).toLocaleDateString();
+  }
+
+  getActiveCourses(): number {
+    return this.courses.filter(course => course.isActive).length;
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
+}

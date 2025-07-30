@@ -1,0 +1,257 @@
+/* School Head Dashboard Styles */
+.school-head-dashboard {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+/* Navigation Logo Styles */
+.navbar-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Navbar Theming */
+.navbar {
+  background: var(--primary-color, #92DE8B) !important;
+  transition: background-color 0.3s ease;
+}
+
+.navbar-brand {
+  color: white !important;
+}
+
+.navbar .nav-link {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.navbar .nav-link:hover {
+  color: white !important;
+}
+
+/* Sidebar Styles */
+.sidebar-layout .sidebar {
+  background: var(--primary-color, #92DE8B);
+  min-height: calc(100vh - 76px);
+  box-shadow: 2px 0 10px rgba(146, 222, 139, 0.1);
+  border-right: none;
+  position: sticky;
+  top: 76px;
+}
+
+.sidebar .nav-link {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  border-radius: 6px;
+  margin: 2px 8px;
+  transition: all 0.3s ease;
+}
+
+.sidebar .nav-link:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  transform: translateX(5px);
+}
+
+.sidebar .nav-link.active {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* User Info Card */
+.user-info-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.school-logo-container {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.school-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.school-logo-placeholder {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: white;
+}
+
+.school-badge {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--primary-color, #92DE8B);
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+/* Button Theming */
+.btn-success,
+.btn-primary,
+.quick-action-btn {
+  background-color: var(--primary-color, #92DE8B) !important;
+  border-color: var(--primary-color, #92DE8B) !important;
+}
+
+.btn-success:hover,
+.btn-primary:hover,
+.quick-action-btn:hover {
+  background-color: var(--primary-color, #92DE8B) !important;
+  border-color: var(--primary-color, #92DE8B) !important;
+  opacity: 0.9;
+}
+
+/* Topbar Layout Styles */
+.topbar-layout .navbar-nav.d-flex.flex-row {
+  gap: 0.5rem;
+}
+
+.topbar-layout .nav-link {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  padding: 0.5rem 1rem !important;
+  white-space: nowrap;
+}
+
+.topbar-layout .nav-link:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: white !important;
+}
+
+.topbar-layout .nav-link.active {
+  background: rgba(255, 255, 255, 0.2);
+  color: white !important;
+  font-weight: 600;
+}
+
+/* Main Content */
+.sidebar-layout main {
+  padding: 2rem 1rem;
+  min-height: calc(100vh - 76px);
+}
+
+.topbar-layout main {
+  padding-top: 2rem;
+  min-height: calc(100vh - 76px);
+}
+
+/* Dashboard Cards */
+.stat-card {
+  border-radius: 12px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Activity Feed */
+.activity-feed .activity-item {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.activity-feed .activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--primary-color, #92DE8B) 0%, #ffffff 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 14px;
+}
+
+/* Quick Action Buttons */
+.quick-action-btn {
+  background: linear-gradient(135deg, var(--primary-color, #92DE8B) 0%, #a8e6a3 100%);
+  border: none;
+  color: white;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+}
+
+.quick-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(146, 222, 139, 0.4);
+  color: white;
+}
+
+/* Progress Bars */
+.progress {
+  background-color: #e9ecef;
+}
+
+.progress-bar {
+  background: linear-gradient(135deg, var(--primary-color, #92DE8B) 0%, #a8e6a3 100%);
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .topbar-layout .navbar-nav.d-flex.flex-row {
+    flex-direction: column !important;
+    gap: 0;
+  }
+  
+  .topbar-layout .nav-link {
+    padding: 0.75rem 1rem !important;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .sidebar-layout .sidebar {
+    min-height: auto;
+    position: relative;
+    top: 0;
+  }
+  
+  .sidebar-layout main,
+  .topbar-layout main {
+    padding: 1rem 0.5rem;
+  }
+  
+  .user-info-card {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Card Headers */
+.card-header {
+  border-radius: 12px 12px 0 0 !important;
+}
+
+.card {
+  border-radius: 12px;
+  border: none;
+}

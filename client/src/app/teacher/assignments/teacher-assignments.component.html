@@ -1,0 +1,234 @@
+<div class="teacher-assignments">
+  <div class="container-fluid">
+    <!-- Header -->
+    <div class="assignments-header d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2><i class="fas fa-tasks me-2"></i>Assignments & Quizzes</h2>
+        <p class="text-muted">Manage your assignments and track student progress</p>
+      </div>
+      <button class="btn btn-primary" (click)="openCreateModal()">
+        <i class="fas fa-plus me-2"></i>Create New
+      </button>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-navigation mb-4">
+      <ul class="nav nav-pills">
+        <li class="nav-item">
+          <a class="nav-link" 
+             [class.active]="activeTab === 'all'"
+             (click)="setActiveTab('all')">
+            All ({{assignments.length}})
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" 
+             [class.active]="activeTab === 'assignments'"
+             (click)="setActiveTab('assignments')">
+            Assignments ({{getAssignmentCount()}})
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" 
+             [class.active]="activeTab === 'quizzes'"
+             (click)="setActiveTab('quizzes')">
+            Quizzes ({{getQuizCount()}})
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" 
+             [class.active]="activeTab === 'graded'"
+             (click)="setActiveTab('graded')">
+            Graded
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" 
+             [class.active]="activeTab === 'pending'"
+             (click)="setActiveTab('pending')">
+            Active
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading assignments...</span>
+      </div>
+      <p class="mt-2">Loading assignments...</p>
+    </div>
+
+    <!-- Assignments Grid -->
+    <div *ngIf="!isLoading" class="assignments-grid">
+      <div *ngIf="filteredAssignments.length === 0" class="empty-state text-center">
+        <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+        <h4>No assignments found</h4>
+        <p class="text-muted">Create your first assignment to get started!</p>
+        <button class="btn btn-primary" (click)="openCreateModal()">
+          <i class="fas fa-plus me-2"></i>Create Assignment
+        </button>
+      </div>
+
+      <div class="row" *ngIf="filteredAssignments.length > 0">
+        <div class="col-lg-4 col-md-6 mb-4" *ngFor="let assignment of filteredAssignments">
+          <div class="assignment-card">
+            <div class="card-header d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <span class="badge" [class]="getTypeBadgeClass(assignment.type)">
+                  {{assignment.type | titlecase}}
+                </span>
+                <span class="badge ms-2" [class]="getStatusBadgeClass(assignment.status)">
+                  {{assignment.status | titlecase}}
+                </span>
+              </div>
+              <div class="dropdown">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" 
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i>Edit</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fas fa-eye me-2"></i>View Submissions</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fas fa-chart-bar me-2"></i>Analytics</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item text-danger" (click)="deleteAssignment(assignment.id)">
+                    <i class="fas fa-trash me-2"></i>Delete</a></li>
+                </ul>
+              </div>
+            </div>
+            
+            <div class="card-body">
+              <h5 class="assignment-title">{{assignment.title}}</h5>
+              <p class="assignment-description">{{assignment.description}}</p>
+              
+              <div class="assignment-meta">
+                <div class="meta-item">
+                  <i class="fas fa-chalkboard me-2"></i>
+                  <span>{{getClassroomName(assignment.classroomId)}}</span>
+                </div>
+                <div class="meta-item">
+                  <i class="fas fa-calendar me-2"></i>
+                  <span>Due: {{formatDate(assignment.dueDate)}}</span>
+                  <span *ngIf="isOverdue(assignment.dueDate)" class="badge bg-danger ms-2">Overdue</span>
+                </div>
+                <div class="meta-item">
+                  <i class="fas fa-star me-2"></i>
+                  <span>{{assignment.totalMarks}} points</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="card-footer">
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="submission-stats">
+                  <small class="text-muted">
+                    {{getSubmissionCount(assignment.id)}} / {{getTotalStudents(assignment.classroomId)}} submitted
+                  </small>
+                  <div class="progress mt-1" style="height: 4px;">
+                    <div class="progress-bar" role="progressbar" 
+                         [style.width]="(getSubmissionCount(assignment.id) / getTotalStudents(assignment.classroomId) * 100) + '%'">
+                    </div>
+                  </div>
+                </div>
+                <div class="action-buttons">
+                  <button class="btn btn-sm btn-outline-primary me-2">
+                    <i class="fas fa-users"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-success">
+                    <i class="fas fa-check-circle"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Assignment Modal -->
+  <div class="modal fade" [class.show]="showCreateModal" [style.display]="showCreateModal ? 'block' : 'none'" 
+       tabindex="-1" aria-labelledby="createAssignmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createAssignmentModalLabel">
+            <i class="fas fa-plus-circle me-2"></i>Create New Assignment
+          </h5>
+          <button type="button" class="btn-close" (click)="closeCreateModal()"></button>
+        </div>
+        <div class="modal-body">
+          <form (ngSubmit)="createAssignment()" #assignmentForm="ngForm">
+            <div class="row">
+              <div class="col-md-8 mb-3">
+                <label for="title" class="form-label">Title *</label>
+                <input type="text" class="form-control" id="title" 
+                       [(ngModel)]="newAssignment.title" name="title" required>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="type" class="form-label">Type *</label>
+                <select class="form-select" id="type" 
+                        [(ngModel)]="newAssignment.type" name="type" required>
+                  <option value="assignment">Assignment</option>
+                  <option value="quiz">Quiz</option>
+                  <option value="exam">Exam</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label">Description *</label>
+              <textarea class="form-control" id="description" rows="3" 
+                        [(ngModel)]="newAssignment.description" name="description" required></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label for="instructions" class="form-label">Instructions</label>
+              <textarea class="form-control" id="instructions" rows="4" 
+                        [(ngModel)]="newAssignment.instructions" name="instructions"
+                        placeholder="Provide detailed instructions for students..."></textarea>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="classroom" class="form-label">Classroom *</label>
+                <select class="form-select" id="classroom" 
+                        [(ngModel)]="newAssignment.classroomId" name="classroom" required>
+                  <option value="0">Select a classroom</option>
+                  <option *ngFor="let classroom of classrooms" [value]="classroom.id">
+                    {{classroom.name}} - {{classroom.subject}}
+                  </option>
+                </select>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="dueDate" class="form-label">Due Date *</label>
+                <input type="datetime-local" class="form-control" id="dueDate" 
+                       [(ngModel)]="newAssignment.dueDate" name="dueDate" required>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="totalMarks" class="form-label">Total Marks *</label>
+                <input type="number" class="form-control" id="totalMarks" 
+                       [(ngModel)]="newAssignment.totalMarks" name="totalMarks" 
+                       min="1" max="1000" required>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeCreateModal()">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-primary" 
+                  (click)="createAssignment()" [disabled]="!validateForm()">
+            <i class="fas fa-save me-2"></i>Create Assignment
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Backdrop -->
+  <div class="modal-backdrop fade" [class.show]="showCreateModal" *ngIf="showCreateModal"></div>
+</div>

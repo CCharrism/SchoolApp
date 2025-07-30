@@ -1,0 +1,431 @@
+<div class="school-head-dashboard">
+  <!-- SIDEBAR LAYOUT -->
+  <div *ngIf="!schoolSettings || schoolSettings.navigationType === 'sidebar'" class="sidebar-layout">
+    <!-- Top Navigation Bar for Sidebar Layout -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow">
+      <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="#">
+          <!-- Logo -->
+          <img *ngIf="schoolSettings?.logoImageUrl" 
+               [src]="schoolSettings?.logoImageUrl" 
+               alt="School Logo" 
+               class="navbar-logo me-2">
+          <i *ngIf="!schoolSettings?.logoImageUrl" class="fas fa-graduation-cap me-2"></i>
+          {{ schoolSettings?.schoolDisplayName || schoolName }} - {{ branchName }}
+        </a>
+        
+        <div class="navbar-nav ms-auto">
+          <div class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" 
+               role="button" data-bs-toggle="dropdown">
+              <img src="https://cdn-icons-png.flaticon.com/512/1802/1802979.png" alt="Avatar" class="rounded-circle me-2" width="32" height="32">
+              <div class="text-start">
+                <div style="font-size: 0.9rem;">{{ currentUser?.username || 'Head' }}</div>
+                <div style="font-size: 0.75rem; opacity: 0.8;">School Head</div>
+              </div>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-school me-2"></i>Branch Info</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#" (click)="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+          <div class="position-sticky pt-3">
+            <!-- School Info -->
+            <div class="text-center mb-4 p-3 user-info-card rounded shadow-sm">
+              <!-- School Logo -->
+              <div class="school-logo-container mb-2" *ngIf="schoolSettings?.logoImageUrl">
+                <img [src]="schoolSettings?.logoImageUrl" 
+                     alt="School Logo" 
+                     class="school-logo-img">
+              </div>
+              <div class="school-logo-placeholder mb-2" *ngIf="!schoolSettings?.logoImageUrl">
+                <i class="fas fa-school"></i>
+              </div>
+              
+              <div class="school-badge mb-2">
+                {{ branchName }}
+              </div>
+              <h6 class="mb-1 text-dark">{{ currentUser?.username || 'Head' }}</h6>
+              <small class="text-muted">School Head</small>
+            </div>
+
+            <!-- Navigation Menu -->
+            <ul class="nav flex-column">
+              <li class="nav-item">
+                <a class="nav-link" 
+                   routerLink="/school-head/dashboard"
+                   routerLinkActive="active">
+                  <i class="fas fa-tachometer-alt me-2"></i>
+                  Dashboard
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" 
+                   routerLink="/school-head/create-course"
+                   routerLinkActive="active">
+                  <i class="fas fa-plus-circle me-2"></i>
+                  Create Course
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" 
+                   routerLink="/school-head/courses"
+                   routerLinkActive="active">
+                  <i class="fas fa-book me-2"></i>
+                  My Courses
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" 
+                   [class.active]="activeMenu === 'teachers'"
+                   (click)="setActiveMenu('teachers'); $event.preventDefault()"
+                   href="#">
+                  <i class="fas fa-chalkboard-teacher me-2"></i>
+                  Teachers
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" 
+                   [class.active]="activeMenu === 'students'"
+                   (click)="setActiveMenu('students'); $event.preventDefault()"
+                   href="#">
+                  <i class="fas fa-user-graduate me-2"></i>
+                  Students
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" 
+                   [class.active]="activeMenu === 'classrooms'"
+                   (click)="setActiveMenu('classrooms'); $event.preventDefault()"
+                   href="#">
+                  <i class="fas fa-chalkboard me-2"></i>
+                  Classrooms
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" 
+                   [class.active]="activeMenu === 'analytics'"
+                   (click)="setActiveMenu('analytics'); $event.preventDefault()"
+                   href="#">
+                  <i class="fas fa-chart-line me-2"></i>
+                  Analytics
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+
+        <!-- Main Content for Sidebar Layout -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+          <ng-container [ngTemplateOutlet]="mainContent"></ng-container>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPBAR LAYOUT -->
+  <div *ngIf="schoolSettings && schoolSettings.navigationType === 'topbar'" class="topbar-layout">
+    <!-- Top Navigation Bar with Horizontal Menu -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow">
+      <div class="container-fluid">
+        <!-- Logo and School Name -->
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="#">
+          <img *ngIf="schoolSettings && schoolSettings.logoImageUrl" 
+               [src]="schoolSettings.logoImageUrl" 
+               alt="School Logo" 
+               class="navbar-logo me-2">
+          <i *ngIf="!schoolSettings || !schoolSettings.logoImageUrl" class="fas fa-graduation-cap me-2"></i>
+          {{ (schoolSettings && schoolSettings.schoolDisplayName) || schoolName }} - {{ branchName }}
+        </a>
+
+        <!-- Horizontal Navigation Menu -->
+        <div class="navbar-nav d-flex flex-row me-auto ms-4">
+          <a class="nav-link px-3" 
+             [class.active]="activeMenu === 'dashboard'"
+             (click)="setActiveMenu('dashboard'); $event.preventDefault()"
+             href="#">
+            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+          </a>
+          <a class="nav-link px-3" 
+             [class.active]="activeMenu === 'create-course'"
+             (click)="setActiveMenu('create-course'); $event.preventDefault()"
+             href="#">
+            <i class="fas fa-plus-circle me-1"></i>Create Course
+          </a>
+          <a class="nav-link px-3" 
+             [class.active]="activeMenu === 'courses'"
+             (click)="setActiveMenu('courses'); $event.preventDefault()"
+             href="#">
+            <i class="fas fa-book me-1"></i>My Courses
+          </a>
+          <a class="nav-link px-3" 
+             [class.active]="activeMenu === 'teachers'"
+             (click)="setActiveMenu('teachers'); $event.preventDefault()"
+             href="#">
+            <i class="fas fa-chalkboard-teacher me-1"></i>Teachers
+          </a>
+          <a class="nav-link px-3" 
+             [class.active]="activeMenu === 'students'"
+             (click)="setActiveMenu('students'); $event.preventDefault()"
+             href="#">
+            <i class="fas fa-user-graduate me-1"></i>Students
+          </a>
+          <a class="nav-link px-3" 
+             [class.active]="activeMenu === 'classrooms'"
+             (click)="setActiveMenu('classrooms'); $event.preventDefault()"
+             href="#">
+            <i class="fas fa-chalkboard me-1"></i>Classrooms
+          </a>
+          <a class="nav-link px-3" 
+             [class.active]="activeMenu === 'analytics'"
+             (click)="setActiveMenu('analytics'); $event.preventDefault()"
+             href="#">
+            <i class="fas fa-chart-line me-1"></i>Analytics
+          </a>
+        </div>
+        
+        <!-- User Profile Dropdown -->
+        <div class="navbar-nav">
+          <div class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdownTopbar" 
+               role="button" data-bs-toggle="dropdown">
+              <img src="https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg" alt="Avatar" class="rounded-circle me-2" width="32" height="32">
+              <div class="text-start">
+                <div style="font-size: 0.9rem;">{{ currentUser?.username || 'Head' }}</div>
+                <div style="font-size: 0.75rem; opacity: 0.8;">School Head</div>
+              </div>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-school me-2"></i>Branch Info</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#" (click)="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content for Topbar Layout -->
+    <main class="container-fluid px-4">
+      <ng-container [ngTemplateOutlet]="mainContent"></ng-container>
+    </main>
+  </div>
+
+  <!-- SHARED MAIN CONTENT TEMPLATE -->
+  <ng-template #mainContent>
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+      <div>
+        <h1 class="h2 fw-bold text-success">{{ getGreeting() }}, {{ currentUser?.username }}!</h1>
+        <p class="text-muted mb-0" *ngIf="activeMenu === 'dashboard'">Welcome to your course management dashboard.</p>
+        <p class="text-muted mb-0" *ngIf="activeMenu === 'create-course'">Create and manage your courses.</p>
+        <p class="text-muted mb-0" *ngIf="activeMenu === 'courses'">View and edit your existing courses.</p>
+        <p class="text-muted mb-0" *ngIf="activeMenu === 'course-view' && selectedCourse">{{ selectedCourse.courseName }}</p>
+      </div>
+      <div class="text-end">
+        <div class="h5 mb-0 text-success">{{ currentTime | date:'medium' }}</div>
+        <small class="text-muted">Current Time</small>
+      </div>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div *ngIf="activeMenu === 'dashboard'">
+      <!-- Quick Stats Cards -->
+      <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4" *ngFor="let stat of quickStats">
+          <div class="card border-0 shadow-sm h-100 stat-card">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col">
+                  <div class="text-uppercase text-muted fw-bold mb-1" style="font-size: 0.75rem;">
+                    {{ stat.title }}
+                  </div>
+                  <div class="h4 mb-0 fw-bold text-success">{{ stat.value }}</div>
+                  <div class="mt-2">
+                    <span class="badge bg-success-subtle text-success">
+                      {{ stat.change }}
+                    </span>
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-2x text-success opacity-25" [class]="stat.icon"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Dashboard Content -->
+      <div class="row">
+        <!-- Recent Activities -->
+        <div class="col-lg-8 mb-4">
+          <div class="card shadow-sm border-0">
+            <div class="card-header" style="background: linear-gradient(135deg, #92DE8B 0%, #ffffff 100%); border: none;">
+              <h5 class="card-title mb-0 text-dark">
+                <i class="fas fa-clock me-2"></i>
+                Recent Activities
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="activity-feed">
+                <div class="activity-item d-flex align-items-start mb-3" *ngFor="let activity of recentActivities">
+                  <div class="activity-icon me-3">
+                    <i class="fas" [class]="activity.icon"></i>
+                  </div>
+                  <div class="activity-content flex-grow-1">
+                    <p class="mb-1">{{ activity.message }}</p>
+                    <small class="text-muted">{{ activity.time }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions & Summary -->
+        <div class="col-lg-4 mb-4">
+          <!-- Quick Actions -->
+          <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header" style="background: linear-gradient(135deg, #92DE8B 0%, #ffffff 100%); border: none;">
+              <h5 class="card-title mb-0 text-dark">
+                <i class="fas fa-bolt me-2"></i>
+                Quick Actions
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="d-grid gap-2">
+                <button class="btn quick-action-btn btn-sm" (click)="router.navigate(['/school-head/create-course'])">
+                  <i class="fas fa-plus me-2"></i>Create New Course
+                </button>
+                <button class="btn quick-action-btn btn-sm" (click)="router.navigate(['/school-head/courses'])">
+                  <i class="fas fa-book me-2"></i>View My Courses
+                </button>
+                <button class="btn quick-action-btn btn-sm" (click)="activeMenu = 'students'">
+                  <i class="fas fa-users me-2"></i>Manage Students
+                </button>
+                <button class="btn quick-action-btn btn-sm" (click)="activeMenu = 'analytics'">
+                  <i class="fas fa-chart-line me-2"></i>View Analytics
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Course Summary -->
+          <div class="card shadow-sm border-0">
+            <div class="card-header" style="background: linear-gradient(135deg, #92DE8B 0%, #ffffff 100%); border: none;">
+              <h5 class="card-title mb-0 text-dark">
+                <i class="fas fa-book me-2"></i>
+                Course Summary
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span>Active Courses</span>
+                  <span class="badge" style="background-color: #92DE8B; color: white;">{{ getActiveCourseCount() }}</span>
+                </div>
+                <div class="progress" style="height: 6px;">
+                  <div class="progress-bar" style="width: 100%;"></div>
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span>Total Lessons</span>
+                  <span class="badge" style="background-color: #92DE8B; color: white;">{{ getTotalLessons() }}</span>
+                </div>
+                <div class="progress" style="height: 6px;">
+                  <div class="progress-bar" style="width: 85%;"></div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span>Course Views</span>
+                  <span class="badge" style="background-color: #92DE8B; color: white;">0</span>
+                </div>
+                <div class="progress" style="height: 6px;">
+                  <div class="progress-bar" style="width: 0%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard shows only its main overview content -->
+    <!-- Course components now have their own routes and pages -->
+
+    <!-- Course View Content -->
+    <div *ngIf="activeMenu === 'course-view' && selectedCourse">
+      <div class="card shadow-sm border-0">
+        <div class="card-header" style="background: linear-gradient(135deg, #92DE8B 0%, #ffffff 100%); border: none;">
+          <div class="d-flex justify-content-between align-items-center">
+            <h4 class="card-title mb-0 text-dark">
+              <i class="fas fa-play-circle me-2"></i>
+              {{ selectedCourse.courseName }}
+            </h4>
+            <button class="btn btn-outline-secondary btn-sm" (click)="backToCourses()">
+              <i class="fas fa-arrow-left me-2"></i>
+              Back to Courses
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="text-center py-5">
+            <i class="fas fa-play-circle fa-3x mb-3" style="color: #92DE8B;"></i>
+            <h5 class="text-muted">Course Viewer Coming Soon</h5>
+            <p class="text-muted">This section will show the Udemy-style course interface with lessons.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Teachers Content -->
+    <div *ngIf="activeMenu === 'teachers'">
+      <app-teacher-management [active]="activeMenu === 'teachers'"></app-teacher-management>
+    </div>
+
+    <!-- Students Content -->
+    <div *ngIf="activeMenu === 'students'">
+      <app-student-management></app-student-management>
+    </div>
+
+    <!-- Classrooms Content -->
+    <div *ngIf="activeMenu === 'classrooms'">
+      <app-classroom-management></app-classroom-management>
+    </div>
+
+    <!-- Analytics Content -->
+    <div *ngIf="activeMenu === 'analytics'">
+      <div class="card shadow-sm border-0">
+        <div class="card-header" style="background: linear-gradient(135deg, #92DE8B 0%, #ffffff 100%); border: none;">
+          <h4 class="card-title mb-0 text-dark">
+            <i class="fas fa-chart-line me-2"></i>
+            Course Analytics
+          </h4>
+        </div>
+        <div class="card-body">
+          <div class="text-center py-5">
+            <i class="fas fa-chart-line fa-3x mb-3" style="color: #92DE8B;"></i>
+            <h5 class="text-muted">Analytics Coming Soon</h5>
+            <p class="text-muted">This section will show detailed analytics for your courses and students.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</div>
